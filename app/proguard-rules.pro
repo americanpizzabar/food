@@ -1,0 +1,6 @@
+-keep class com.americanpizzabar.food.data.remote.dto.** { *; }
+-keep class com.americanpizzabar.food.domain.model.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**

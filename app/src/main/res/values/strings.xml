@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FoodAI</string>
+    <string name="photo_analysis">写真解析</string>
+    <string name="recipe_suggestion">レシピ提案</string>
+    <string name="journal">食事日記</string>
+    <string name="shopping">買い物リスト</string>
+    <string name="pantry">パントリー</string>
+    <string name="calendar">献立カレンダー</string>
+    <string name="profile">プロフィール設定</string>
+    <string name="analyze_photo">写真を解析する</string>
+    <string name="save_recipe">レシピを保存</string>
+    <string name="add_to_shopping">買い物リストへ追加</string>
+    <string name="generate_suggestions">レシピを提案</string>
+    <string name="shopping_list_widget_description">買い物リストウィジェット</string>
+    <string name="today_menu_widget_description">今日の献立ウィジェット</string>
+</resources>
