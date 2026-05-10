@@ -68,7 +68,7 @@ export default function Home() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 text-[11px] font-medium mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            Powered by Google Gemini 2.0 Flash
+            Powered by Google Gemini 2.5 Flash
           </div>
           <h1 className="text-3xl font-bold tracking-tight">
             Food<span className="text-orange-400">AI</span>

@@ -148,7 +148,7 @@ export default function ProfilePage() {
       {/* App info */}
       <div className="card text-center">
         <p className="text-sm font-bold text-gray-700">🍽️ FoodAI v1.0</p>
-        <p className="text-xs text-gray-400 mt-1">Powered by Google Gemini 2.0 Flash</p>
+        <p className="text-xs text-gray-400 mt-1">Powered by Google Gemini 2.5 Flash</p>
         <p className="text-xs text-gray-400">データはブラウザのlocalStorageに保存されます</p>
       </div>
     </div>

@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI, Part } from '@google/generative-ai'
 
-const MODEL = 'gemini-2.0-flash'
+const PRIMARY_MODEL = 'gemini-2.5-flash'
+const FALLBACK_MODEL = 'gemini-2.5-flash-lite'
 
 function getClient(apiKey?: string) {
   const key = apiKey || process.env.GEMINI_API_KEY || ''
-  if (!key) throw new Error('GEMINI_API_KEY が設定されていません')
+  if (!key) throw new Error('Gemini APIキーが設定されていません。設定画面でGoogle AI StudioのAPIキーを登録してください。')
   return new GoogleGenerativeAI(key)
 }
 
@@ -14,11 +15,50 @@ function imagePartFromDataUrl(dataUrl: string): Part {
   return { inlineData: { data, mimeType } }
 }
 
+function isQuotaError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  const m = e.message
+  return m.includes('429') || m.includes('Quota') || m.includes('quota') || m.includes('RESOURCE_EXHAUSTED')
+}
+
+function isAuthError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  const m = e.message
+  return m.includes('401') || m.includes('403') || m.includes('API_KEY_INVALID') || m.includes('PERMISSION_DENIED')
+}
+
+function friendlyError(e: unknown): never {
+  if (isQuotaError(e)) {
+    throw new Error('AI APIの利用上限に達しました。しばらく時間を置いてから再試行するか、Google AI Studioで料金プランを確認してください。')
+  }
+  if (isAuthError(e)) {
+    throw new Error('APIキーが無効か、権限がありません。設定画面で正しいGoogle AI StudioのAPIキーを設定してください。')
+  }
+  if (e instanceof Error) throw e
+  throw new Error('AI処理に失敗しました')
+}
+
+type Prompt = string | (string | Part)[]
+
+async function generateWithFallback(prompt: Prompt, apiKey?: string): Promise<string> {
+  const client = getClient(apiKey)
+  let lastError: unknown
+
+  for (const modelName of [PRIMARY_MODEL, FALLBACK_MODEL]) {
+    try {
+      const model = client.getGenerativeModel({ model: modelName })
+      const result = await model.generateContent(prompt as never)
+      return result.response.text()
+    } catch (e) {
+      lastError = e
+      if (!isQuotaError(e)) break
+    }
+  }
+  friendlyError(lastError)
+}
+
 // ---- Food Photo Analysis ----
 export async function analyzeFoodPhoto(imageDataUrl: string, apiKey?: string): Promise<string> {
-  const client = getClient(apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `あなたはプロの料理専門家AIです。この料理の写真を分析し、以下のJSON形式のみで回答してください（他の文章は不要）:
 {
   "name": "料理名（日本語）",
@@ -36,8 +76,7 @@ export async function analyzeFoodPhoto(imageDataUrl: string, apiKey?: string): P
   "remakeIdeas": ["リメイク案1", "リメイク案2"]
 }`
 
-  const result = await model.generateContent([imagePartFromDataUrl(imageDataUrl), prompt])
-  return result.response.text()
+  return generateWithFallback([imagePartFromDataUrl(imageDataUrl), prompt], apiKey)
 }
 
 // ---- Recipe Suggestion ----
@@ -51,9 +90,6 @@ export async function suggestRecipes(params: {
   dislikedIngredients: string[]
   apiKey?: string
 }): Promise<string> {
-  const client = getClient(params.apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `あなたはプロの料理専門家AIです。以下の条件に合うレシピを3つ提案してください。JSON配列形式のみで回答（他の文章不要）:
 
 気分: ${params.mood || '普通'}
@@ -79,15 +115,11 @@ export async function suggestRecipes(params: {
   }
 ]`
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  return generateWithFallback(prompt, params.apiKey)
 }
 
 // ---- Menu Analysis: detect dishes from menu photo ----
 export async function analyzeMenuPhoto(imageDataUrl: string, apiKey?: string): Promise<string> {
-  const client = getClient(apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `このレストランのメニュー写真を分析し、メニューに掲載されている料理を全て抽出してください。JSON配列形式のみで回答（説明不要）:
 [
   {
@@ -98,15 +130,11 @@ export async function analyzeMenuPhoto(imageDataUrl: string, apiKey?: string): P
   }
 ]`
 
-  const result = await model.generateContent([imagePartFromDataUrl(imageDataUrl), prompt])
-  return result.response.text()
+  return generateWithFallback([imagePartFromDataUrl(imageDataUrl), prompt], apiKey)
 }
 
 // ---- Dish Cooking Guide: professional-level cooking instructions ----
 export async function generateDishCookingGuide(dishName: string, apiKey?: string): Promise<string> {
-  const client = getClient(apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `あなたはミシュラン三つ星レストランのシェフです。「${dishName}」を家庭で最高レベルに仕上げるための完全ガイドを作成してください。
 プロが使う最高品質の食材選び、本格的な調理技法、細かい手順を詳しく丁寧に説明してください。
 JSON形式のみで回答（他の文章不要）:
@@ -153,15 +181,11 @@ JSON形式のみで回答（他の文章不要）:
   "commonMistakes": ["よくある失敗1とその対処法", "よくある失敗2とその対処法"]
 }`
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  return generateWithFallback(prompt, apiKey)
 }
 
 // ---- URL Recipe Import ----
 export async function importRecipeFromUrl(url: string, htmlText: string, apiKey?: string): Promise<string> {
-  const client = getClient(apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `以下のWebページのテキストからレシピを抽出し、JSON形式のみで回答してください:
 URL: ${url}
 テキスト: ${htmlText.slice(0, 4000)}
@@ -180,22 +204,17 @@ URL: ${url}
   "difficulty": "MEDIUM"
 }`
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  return generateWithFallback(prompt, apiKey)
 }
 
 // ---- Health Correlation Analysis ----
 export async function analyzeHealthCorrelation(logs: string[], apiKey?: string): Promise<string> {
-  const client = getClient(apiKey)
-  const model = client.getGenerativeModel({ model: MODEL })
-
   const prompt = `以下の食事と体調ログを分析し、体調改善に良い食事パターンを200文字以内で日本語で教えてください:
 ${logs.join('\n')}
 
 また、おすすめのメニューを3つ提案してください。`
 
-  const result = await model.generateContent(prompt)
-  return result.response.text()
+  return generateWithFallback(prompt, apiKey)
 }
 
 // JSON extractor helper
