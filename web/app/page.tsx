@@ -7,14 +7,16 @@ const features = [
     icon: Camera,
     title: '料理写真解析',
     desc: '写真からレシピ・カロリーを自動生成',
-    gradient: 'from-orange-400 to-rose-500',
+    gradient: 'linear-gradient(135deg, #f97316, #ef4444)',
+    glow: 'rgba(249,115,22,.25)',
   },
   {
     href: '/menu-analysis',
     icon: ScanSearch,
     title: 'メニュー解析',
     desc: 'レストランメニューをプロ級レシピに変換',
-    gradient: 'from-violet-500 to-indigo-600',
+    gradient: 'linear-gradient(135deg, #a855f7, #6366f1)',
+    glow: 'rgba(168,85,247,.22)',
     badge: 'NEW',
   },
   {
@@ -22,81 +24,143 @@ const features = [
     icon: Sparkles,
     title: 'AIレシピ提案',
     desc: '気分・体調・在庫から最適なレシピを提案',
-    gradient: 'from-amber-400 to-orange-500',
+    gradient: 'linear-gradient(135deg, #e8b84b, #d4932a)',
+    glow: 'rgba(232,184,75,.25)',
   },
   {
     href: '/journal',
     icon: BookOpen,
     title: '食事日記',
     desc: '料理の評価・感想・体調を記録',
-    gradient: 'from-emerald-400 to-teal-500',
+    gradient: 'linear-gradient(135deg, #10b981, #0d9488)',
+    glow: 'rgba(16,185,129,.22)',
   },
   {
     href: '/shopping',
     icon: ShoppingCart,
     title: '買い物リスト',
     desc: 'レシピから自動生成・オフライン対応',
-    gradient: 'from-sky-400 to-blue-500',
+    gradient: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+    glow: 'rgba(59,130,246,.22)',
   },
   {
     href: '/pantry',
     icon: Package,
     title: 'パントリー管理',
     desc: '在庫・賞味期限を管理して使い切り',
-    gradient: 'from-rose-400 to-pink-600',
+    gradient: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+    glow: 'rgba(244,63,94,.22)',
   },
   {
     href: '/calendar',
     icon: Calendar,
     title: '献立カレンダー',
     desc: '週間の食事プランを計画・管理',
-    gradient: 'from-indigo-400 to-violet-500',
+    gradient: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+    glow: 'rgba(139,92,246,.22)',
   },
 ]
 
 export default function Home() {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-[#3a1a0a] p-6 text-white min-h-[164px] flex flex-col justify-between">
+      <div className="relative overflow-hidden rounded-3xl p-7"
+        style={{
+          background: 'linear-gradient(145deg, #16140f 0%, #0e0c0a 50%, #120f0a 100%)',
+          border: '1px solid rgba(232,184,75,.12)',
+          boxShadow: '0 0 0 1px rgba(255,255,255,.04) inset, 0 8px 40px rgba(0,0,0,.6)',
+        }}>
         {/* Orbs */}
-        <div className="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-8 w-40 h-40 bg-orange-700/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 right-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -top-16 -right-12 w-64 h-64 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(232,184,75,.12) 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-16 -left-10 w-52 h-52 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(180,90,20,.10) 0%, transparent 70%)' }} />
+        <div className="absolute top-1/3 left-1/3 w-36 h-36 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(232,184,75,.05) 0%, transparent 70%)' }} />
 
         <div className="relative">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 text-[11px] font-medium mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold mb-5"
+            style={{
+              background: 'rgba(232,184,75,.10)',
+              border: '1px solid rgba(232,184,75,.2)',
+              color: '#e8b84b',
+            }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#e8b84b] animate-pulse" />
             Powered by Google Gemini 2.5 Flash
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Food<span className="text-orange-400">AI</span>
+
+          {/* Title */}
+          <h1 className="text-4xl font-black tracking-tight mb-1 leading-none">
+            <span className="text-[#ececec]">Food</span>
+            <span style={{
+              background: 'linear-gradient(90deg, #e8b84b 0%, #f5d06e 50%, #d4932a 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>AI</span>
           </h1>
-          <p className="text-white/60 text-sm mt-1.5 leading-relaxed">
-            AI搭載の料理アシスタント。<br />
-            写真解析・献立計画・買い物管理を一括サポート。
+          <p className="text-sm mb-4" style={{ color: '#666' }}>
+            AI搭載のプレミアム料理アシスタント
+          </p>
+
+          {/* Divider */}
+          <div className="w-12 h-px mb-4" style={{ background: 'linear-gradient(90deg, #e8b84b, transparent)' }} />
+
+          <p className="text-sm leading-relaxed" style={{ color: '#888' }}>
+            写真解析・レシピ提案・献立計画・<br />
+            買い物管理を一括でサポート。
           </p>
         </div>
       </div>
 
       {/* ── Feature grid ── */}
       <div>
-        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">機能一覧</p>
+        <p className="text-[10px] font-bold uppercase tracking-[.15em] mb-4"
+          style={{ color: '#444' }}>
+          機能一覧
+        </p>
         <div className="grid grid-cols-2 gap-3">
-          {features.map(({ href, icon: Icon, title, desc, gradient, badge }) => (
-            <Link key={href} href={href} className="group">
-              <div className="card hover:shadow-[0_4px_28px_rgba(0,0,0,.10)] hover:-translate-y-0.5 transition-all duration-200 h-full">
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform duration-200`}>
-                  <Icon size={20} className="text-white" strokeWidth={1.8} />
+          {features.map(({ href, icon: Icon, title, desc, gradient, glow, badge }) => (
+            <Link key={href} href={href} className="group card-hover">
+              <div className="rounded-3xl p-4 h-full"
+                style={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,.35)',
+                  transition: 'border-color .2s, box-shadow .2s, transform .2s',
+                }}>
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3.5 transition-transform duration-200 group-hover:scale-105"
+                  style={{
+                    background: gradient,
+                    boxShadow: `0 4px 16px ${glow}`,
+                  }}>
+                  <Icon size={21} color="white" strokeWidth={1.8} />
                 </div>
+
+                {/* Title */}
                 <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                  <span className="font-semibold text-gray-900 text-[13px] leading-tight">{title}</span>
+                  <span className="text-[13px] font-bold leading-tight" style={{ color: '#dedede' }}>
+                    {title}
+                  </span>
                   {badge && (
-                    <span className="badge bg-violet-100 text-violet-600" style={{ fontSize: '9px' }}>{badge}</span>
+                    <span className="badge text-[9px]"
+                      style={{
+                        background: 'rgba(168,85,247,.15)',
+                        color: '#c084fc',
+                        border: '1px solid rgba(168,85,247,.2)',
+                      }}>
+                      {badge}
+                    </span>
                   )}
                 </div>
-                <p className="text-[11px] text-gray-500 leading-relaxed">{desc}</p>
+
+                {/* Desc */}
+                <p className="text-[11px] leading-relaxed" style={{ color: '#666' }}>
+                  {desc}
+                </p>
               </div>
             </Link>
           ))}

@@ -4,13 +4,17 @@
 
 @layer base {
   :root {
-    --bg: #f4f3ef;
-    --surface: #ffffff;
-    --border: rgba(0, 0, 0, 0.07);
-    --text-1: #111111;
-    --text-2: #6b6b6b;
-    --accent: #f97316;
-    --radius-xl: 20px;
+    --bg:        #080809;
+    --surface:   #101013;
+    --surface-2: #18181d;
+    --surface-3: #222228;
+    --border:    rgba(255, 255, 255, 0.06);
+    --border-2:  rgba(255, 255, 255, 0.10);
+    --text-1:    #ececec;
+    --text-2:    #777777;
+    --gold:      #e8b84b;
+    --gold-2:    #f5d06e;
+    --gold-dim:  rgba(232, 184, 75, 0.15);
   }
 
   * {
@@ -19,71 +23,102 @@
 
   html {
     scroll-behavior: smooth;
+    color-scheme: dark;
   }
 
   body {
     background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(232,184,75,.06) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 90% 80%, rgba(180,100,30,.05) 0%, transparent 50%);
+    background-attachment: fixed;
     min-height: 100dvh;
     color: var(--text-1);
   }
 
   ::selection {
-    background: rgba(249, 115, 22, 0.2);
+    background: rgba(232, 184, 75, 0.25);
+    color: #fff;
   }
 }
 
 @layer components {
-  /* ── Buttons ── */
+  /* ── Primary button (gold) ── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
-           text-sm font-semibold text-white rounded-2xl
-           bg-gradient-to-b from-orange-500 to-orange-600
-           shadow-[0_1px_2px_rgba(0,0,0,.12),0_4px_16px_rgba(249,115,22,.35)]
-           hover:shadow-[0_2px_4px_rgba(0,0,0,.14),0_8px_24px_rgba(249,115,22,.45)]
-           hover:brightness-105 active:scale-[.97] active:brightness-95
-           transition-all duration-150
-           disabled:opacity-40 disabled:cursor-not-allowed
-           disabled:hover:brightness-100 disabled:hover:shadow-[0_1px_2px_rgba(0,0,0,.12),0_4px_16px_rgba(249,115,22,.35)];
+           text-sm font-bold rounded-2xl tracking-wide
+           transition-all duration-200
+           active:scale-[.96]
+           disabled:opacity-30 disabled:cursor-not-allowed;
+    color: #0a0808;
+    background: linear-gradient(135deg, #e8b84b 0%, #d4932a 100%);
+    box-shadow: 0 2px 0 rgba(0,0,0,.4), 0 4px 20px rgba(232,184,75,.25);
+  }
+  .btn-primary:not(:disabled):hover {
+    box-shadow: 0 2px 0 rgba(0,0,0,.4), 0 6px 28px rgba(232,184,75,.40);
+    filter: brightness(1.07);
   }
 
+  /* ── Secondary button (dark glass) ── */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
-           text-sm font-semibold text-gray-800 rounded-2xl
-           bg-white border border-gray-200
-           shadow-[0_1px_2px_rgba(0,0,0,.05)]
-           hover:bg-gray-50 hover:shadow-[0_2px_8px_rgba(0,0,0,.08)]
-           active:scale-[.97]
-           transition-all duration-150
-           disabled:opacity-40 disabled:cursor-not-allowed;
+           text-sm font-semibold rounded-2xl
+           transition-all duration-200
+           active:scale-[.96]
+           disabled:opacity-30 disabled:cursor-not-allowed;
+    color: var(--text-1);
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 2px 8px rgba(0,0,0,.3);
+  }
+  .btn-secondary:not(:disabled):hover {
+    background: var(--surface-3);
+    border-color: rgba(255,255,255,.15);
   }
 
+  /* ── Danger button ── */
   .btn-danger {
     @apply inline-flex items-center justify-center gap-1.5 px-4 py-2
-           text-sm font-medium text-red-600 rounded-xl
-           bg-red-50 hover:bg-red-100 active:scale-[.97]
-           transition-all duration-150;
+           text-sm font-medium rounded-xl
+           transition-all duration-150 active:scale-[.97];
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+  }
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.16);
   }
 
   /* ── Cards ── */
   .card {
-    @apply bg-white rounded-3xl p-5
-           border border-black/[0.05]
-           shadow-[0_1px_3px_rgba(0,0,0,.05),0_6px_20px_rgba(0,0,0,.04)];
+    @apply rounded-3xl p-5;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 4px 24px rgba(0,0,0,.35);
   }
 
-  /* ── Typography ── */
+  /* ── Section title ── */
   .section-title {
-    @apply text-base font-bold text-gray-900 mb-3 tracking-tight;
+    @apply text-base font-bold mb-3 tracking-tight;
+    color: var(--text-1);
   }
 
-  /* ── Form controls ── */
+  /* ── Input ── */
   .input {
     @apply w-full px-4 py-2.5 text-sm rounded-xl
-           border border-gray-200 bg-gray-50/70
-           text-gray-900 placeholder:text-gray-400
-           focus:outline-none focus:ring-2 focus:ring-orange-400/40
-           focus:border-orange-400 focus:bg-white
            transition-all duration-150;
+    background: var(--surface-2);
+    border: 1px solid var(--border-2);
+    color: var(--text-1);
+  }
+  .input::placeholder {
+    color: var(--text-2);
+  }
+  .input:focus {
+    outline: none;
+    border-color: rgba(232, 184, 75, 0.5);
+    box-shadow: 0 0 0 3px rgba(232, 184, 75, 0.10);
+    background: var(--surface-3);
   }
 
   /* ── Badge ── */
@@ -95,8 +130,8 @@
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
 /* ── Animations ── */
 @keyframes fadeInUp {
@@ -104,7 +139,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
-  animation: fadeInUp 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fadeIn {
@@ -115,3 +150,15 @@
 
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 .animate-spin-slow { animation: spin-slow 2s linear infinite; }
+
+/* ── Gold shimmer on card hover ── */
+.card-hover {
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.card-hover:hover {
+  border-color: rgba(232, 184, 75, 0.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,.03) inset,
+              0 8px 40px rgba(0,0,0,.5),
+              0 0 0 1px rgba(232,184,75,.08);
+  transform: translateY(-2px);
+}
