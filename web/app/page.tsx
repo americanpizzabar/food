@@ -5,111 +5,104 @@ const features = [
   {
     href: '/photo-analysis',
     icon: Camera,
-    emoji: '📸',
     title: '料理写真解析',
-    desc: '写真から材料・手順・カロリーを自動生成',
-    color: 'bg-orange-50 border-orange-200',
-    iconColor: 'text-orange-500',
+    desc: '写真からレシピ・カロリーを自動生成',
+    gradient: 'from-orange-400 to-rose-500',
   },
   {
     href: '/menu-analysis',
     icon: ScanSearch,
-    emoji: '🍽️',
     title: 'メニュー解析',
-    desc: 'レストランメニューの料理をプロ級レシピに変換',
-    color: 'bg-purple-50 border-purple-200',
-    iconColor: 'text-purple-500',
+    desc: 'レストランメニューをプロ級レシピに変換',
+    gradient: 'from-violet-500 to-indigo-600',
     badge: 'NEW',
   },
   {
     href: '/recipe-suggestion',
     icon: Sparkles,
-    emoji: '✨',
     title: 'AIレシピ提案',
-    desc: '今の気分・体調・在庫からレシピを提案',
-    color: 'bg-yellow-50 border-yellow-200',
-    iconColor: 'text-yellow-500',
+    desc: '気分・体調・在庫から最適なレシピを提案',
+    gradient: 'from-amber-400 to-orange-500',
   },
   {
     href: '/journal',
     icon: BookOpen,
-    emoji: '📔',
     title: '食事日記',
-    desc: '料理の感想・評価・体調を記録',
-    color: 'bg-green-50 border-green-200',
-    iconColor: 'text-green-500',
+    desc: '料理の評価・感想・体調を記録',
+    gradient: 'from-emerald-400 to-teal-500',
   },
   {
     href: '/shopping',
     icon: ShoppingCart,
-    emoji: '🛒',
     title: '買い物リスト',
     desc: 'レシピから自動生成・オフライン対応',
-    color: 'bg-blue-50 border-blue-200',
-    iconColor: 'text-blue-500',
+    gradient: 'from-sky-400 to-blue-500',
   },
   {
     href: '/pantry',
     icon: Package,
-    emoji: '📦',
     title: 'パントリー管理',
-    desc: '在庫・賞味期限を管理して使い切り提案',
-    color: 'bg-red-50 border-red-200',
-    iconColor: 'text-red-400',
+    desc: '在庫・賞味期限を管理して使い切り',
+    gradient: 'from-rose-400 to-pink-600',
   },
   {
     href: '/calendar',
     icon: Calendar,
-    emoji: '📅',
     title: '献立カレンダー',
     desc: '週間の食事プランを計画・管理',
-    color: 'bg-indigo-50 border-indigo-200',
-    iconColor: 'text-indigo-500',
+    gradient: 'from-indigo-400 to-violet-500',
   },
 ]
 
 export default function Home() {
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Hero */}
-      <div className="card bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-4xl">🍽️</span>
-          <div>
-            <h1 className="text-2xl font-bold">FoodAI</h1>
-            <p className="text-orange-100 text-sm">AI搭載の料理アシスタント</p>
+
+      {/* ── Hero ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-[#3a1a0a] p-6 text-white min-h-[164px] flex flex-col justify-between">
+        {/* Orbs */}
+        <div className="absolute -top-10 -right-10 w-48 h-48 bg-orange-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-8 w-40 h-40 bg-orange-700/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 right-4 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 text-[11px] font-medium mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            Powered by Google Gemini 2.0 Flash
           </div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Food<span className="text-orange-400">AI</span>
+          </h1>
+          <p className="text-white/60 text-sm mt-1.5 leading-relaxed">
+            AI搭載の料理アシスタント。<br />
+            写真解析・献立計画・買い物管理を一括サポート。
+          </p>
         </div>
-        <p className="text-orange-50 text-sm mt-3">
-          写真解析・レシピ提案・献立計画・買い物管理を一括サポート。
-          Google Gemini AIが料理をあらゆる角度からサポートします。
-        </p>
       </div>
 
-      {/* Feature grid */}
-      <div className="grid grid-cols-1 gap-3">
-        {features.map(({ href, emoji, title, desc, color, iconColor, badge }) => (
-          <Link key={href} href={href}>
-            <div className={`card border ${color} hover:shadow-md transition-all cursor-pointer flex items-center gap-4`}>
-              <span className="text-3xl">{emoji}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-800">{title}</span>
+      {/* ── Feature grid ── */}
+      <div>
+        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">機能一覧</p>
+        <div className="grid grid-cols-2 gap-3">
+          {features.map(({ href, icon: Icon, title, desc, gradient, badge }) => (
+            <Link key={href} href={href} className="group">
+              <div className="card hover:shadow-[0_4px_28px_rgba(0,0,0,.10)] hover:-translate-y-0.5 transition-all duration-200 h-full">
+                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform duration-200`}>
+                  <Icon size={20} className="text-white" strokeWidth={1.8} />
+                </div>
+                <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                  <span className="font-semibold text-gray-900 text-[13px] leading-tight">{title}</span>
                   {badge && (
-                    <span className="badge bg-purple-100 text-purple-700">{badge}</span>
+                    <span className="badge bg-violet-100 text-violet-600" style={{ fontSize: '9px' }}>{badge}</span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 mt-0.5 truncate">{desc}</p>
+                <p className="text-[11px] text-gray-500 leading-relaxed">{desc}</p>
               </div>
-              <span className="text-gray-300 text-xl flex-shrink-0">›</span>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      <p className="text-center text-xs text-gray-400">
-        Powered by Google Gemini 2.0 Flash
-      </p>
     </div>
   )
 }
