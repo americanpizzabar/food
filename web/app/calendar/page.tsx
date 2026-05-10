@@ -9,11 +9,19 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, Trash2, X } from 'lucide-rea
 const MEAL_TYPES = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const
 const MEAL_LABELS: Record<string, string> = { BREAKFAST: '朝食', LUNCH: '昼食', DINNER: '夕食', SNACK: '間食' }
 const DAY_LABELS = ['月', '火', '水', '木', '金', '土', '日']
-const MEAL_COLORS: Record<string, string> = {
-  BREAKFAST: 'bg-yellow-100 text-yellow-700',
-  LUNCH: 'bg-blue-100 text-blue-700',
-  DINNER: 'bg-purple-100 text-purple-700',
-  SNACK: 'bg-green-100 text-green-700',
+
+const MEAL_COLORS: Record<string, { bg: string; text: string }> = {
+  BREAKFAST: { bg: 'rgba(251,191,36,.15)', text: '#fbbf24' },
+  LUNCH:     { bg: 'rgba(59,130,246,.15)',  text: '#60a5fa' },
+  DINNER:    { bg: 'rgba(168,85,247,.15)',  text: '#c084fc' },
+  SNACK:     { bg: 'rgba(16,185,129,.15)',  text: '#34d399' },
+}
+
+const LEGEND_COLORS: Record<string, string> = {
+  BREAKFAST: 'rgba(251,191,36,.12)',
+  LUNCH:     'rgba(59,130,246,.12)',
+  DINNER:    'rgba(168,85,247,.12)',
+  SNACK:     'rgba(16,185,129,.12)',
 }
 
 function getMonday(date: Date): Date {
@@ -86,58 +94,74 @@ export default function CalendarPage() {
   return (
     <div className="space-y-4 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <Calendar className="text-indigo-500" size={22} /> 献立カレンダー
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <Calendar className="text-indigo-400" size={22} /> 献立カレンダー
         </h1>
       </div>
 
       {/* Week nav */}
       <div className="flex items-center justify-between">
-        <button onClick={prevWeek} className="p-2 rounded-xl hover:bg-gray-100">
+        <button onClick={prevWeek} className="p-2 rounded-xl transition-colors"
+          style={{ color: '#888' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
           <ChevronLeft size={20} />
         </button>
         <div className="text-center">
-          <p className="text-sm font-semibold text-gray-700">{weekLabel}</p>
-          <button onClick={goToday} className="text-xs text-indigo-500 hover:underline">今週に戻る</button>
+          <p className="text-sm font-semibold text-[#bbb]">{weekLabel}</p>
+          <button onClick={goToday} className="text-xs text-[#e8b84b] hover:underline">今週に戻る</button>
         </div>
-        <button onClick={nextWeek} className="p-2 rounded-xl hover:bg-gray-100">
+        <button onClick={nextWeek} className="p-2 rounded-xl transition-colors"
+          style={{ color: '#888' }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
           <ChevronRight size={20} />
         </button>
       </div>
 
       {/* Calendar grid */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,.06)' }}>
         {/* Header */}
-        <div className="grid grid-cols-8 bg-gray-50 border-b">
-          <div className="p-2 text-xs text-gray-400 font-medium"></div>
+        <div className="grid grid-cols-8 border-b" style={{ background: 'var(--surface-2)', borderColor: 'rgba(255,255,255,.06)' }}>
+          <div className="p-2" />
           {weekDays.map(({ dateStr, label, day }) => (
-            <div key={dateStr} className={`p-2 text-center ${dateStr === todayStr ? 'bg-indigo-50' : ''}`}>
-              <p className={`text-xs font-medium ${label === '土' ? 'text-blue-500' : label === '日' ? 'text-red-500' : 'text-gray-500'}`}>{label}</p>
-              <p className={`text-sm font-bold mt-0.5 ${dateStr === todayStr ? 'text-indigo-600' : 'text-gray-700'}`}>{day}</p>
+            <div key={dateStr} className="p-2 text-center"
+              style={dateStr === todayStr ? { background: 'rgba(99,102,241,.1)' } : {}}>
+              <p className={`text-xs font-medium ${label === '土' ? 'text-blue-400' : label === '日' ? 'text-red-400' : 'text-[#666]'}`}>{label}</p>
+              <p className="text-sm font-bold mt-0.5" style={{ color: dateStr === todayStr ? '#818cf8' : '#bbb' }}>{day}</p>
             </div>
           ))}
         </div>
 
-        {/* Rows for each meal type */}
+        {/* Rows */}
         {MEAL_TYPES.map(mealType => (
-          <div key={mealType} className="grid grid-cols-8 border-b last:border-0">
-            <div className="p-2 flex items-center justify-center border-r bg-gray-50">
-              <span className="text-xs font-medium text-gray-500 writing-mode-vertical">{MEAL_LABELS[mealType]}</span>
+          <div key={mealType} className="grid grid-cols-8 border-b last:border-0"
+            style={{ borderColor: 'rgba(255,255,255,.04)' }}>
+            <div className="p-2 flex items-center justify-center border-r"
+              style={{ background: 'var(--surface-2)', borderColor: 'rgba(255,255,255,.04)' }}>
+              <span className="text-[10px] font-semibold" style={{ color: '#666' }}>{MEAL_LABELS[mealType]}</span>
             </div>
             {weekDays.map(({ dateStr }) => {
               const key = `${dateStr}__${mealType}`
               const dayPlans = plansMap[key] ?? []
               return (
-                <div key={dateStr}
-                  className={`min-h-[56px] p-1 border-r last:border-r-0 ${dateStr === todayStr ? 'bg-indigo-50/30' : ''}`}>
+                <div key={dateStr} className="min-h-[56px] p-1 border-r last:border-r-0"
+                  style={{
+                    borderColor: 'rgba(255,255,255,.04)',
+                    background: dateStr === todayStr ? 'rgba(99,102,241,.05)' : undefined,
+                  }}>
                   {dayPlans.map(p => (
                     <button key={p.id} onClick={() => openEdit(p)}
-                      className={`w-full text-left text-[10px] font-medium px-1.5 py-1 rounded-md mb-1 leading-tight ${MEAL_COLORS[mealType]}`}>
+                      className="w-full text-left text-[10px] font-semibold px-1.5 py-1 rounded-md mb-1 leading-tight transition-opacity hover:opacity-80"
+                      style={{ background: MEAL_COLORS[mealType].bg, color: MEAL_COLORS[mealType].text }}>
                       {p.recipeName}
                     </button>
                   ))}
                   <button onClick={() => openAdd(dateStr, mealType)}
-                    className="w-full flex items-center justify-center text-gray-200 hover:text-gray-400 transition-colors h-5">
+                    className="w-full flex items-center justify-center h-5 transition-colors"
+                    style={{ color: '#333' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#666')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#333')}>
                     <Plus size={12} />
                   </button>
                 </div>
@@ -150,19 +174,23 @@ export default function CalendarPage() {
       {/* Legend */}
       <div className="flex flex-wrap gap-2">
         {MEAL_TYPES.map(t => (
-          <span key={t} className={`badge ${MEAL_COLORS[t]}`}>{MEAL_LABELS[t]}</span>
+          <span key={t} className="badge text-[11px]"
+            style={{ background: LEGEND_COLORS[t], color: MEAL_COLORS[t].text, border: `1px solid ${MEAL_COLORS[t].bg}` }}>
+            {MEAL_LABELS[t]}
+          </span>
         ))}
       </div>
 
       {/* Dialog */}
       {dialog && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30">
-          <div className="bg-white rounded-t-2xl w-full max-w-md p-5 space-y-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60">
+          <div className="rounded-t-3xl w-full max-w-md p-5 space-y-4 animate-fade-in"
+            style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', borderBottom: 'none' }}>
             <div className="flex justify-between items-center">
-              <h2 className="font-bold text-gray-800">
+              <h2 className="font-bold text-[#ddd]">
                 {dialog.date} — {MEAL_LABELS[dialog.mealType]}
               </h2>
-              <button onClick={() => setDialog(null)}><X size={20} /></button>
+              <button onClick={() => setDialog(null)} style={{ color: '#666' }}><X size={20} /></button>
             </div>
             <input className="input" placeholder="料理名 *" value={formName} onChange={e => setFormName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && savePlan()} autoFocus />

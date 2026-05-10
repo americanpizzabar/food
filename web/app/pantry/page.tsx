@@ -66,45 +66,51 @@ export default function PantryPage() {
 
   const getDaysLeft = (expiryDate: string) => {
     const diff = Math.ceil((new Date(expiryDate).getTime() - Date.now()) / 86400000)
-    if (diff < 0) return <span className="text-xs text-red-600 font-medium">期限切れ</span>
-    if (diff === 0) return <span className="text-xs text-red-500">今日が期限</span>
-    if (diff <= 3) return <span className="text-xs text-orange-500">{diff}日後が期限</span>
-    return <span className="text-xs text-gray-400">{expiryDate}</span>
+    if (diff < 0) return <span className="text-xs text-red-400 font-medium">期限切れ</span>
+    if (diff === 0) return <span className="text-xs text-red-400">今日が期限</span>
+    if (diff <= 3) return <span className="text-xs text-amber-400">{diff}日後が期限</span>
+    return <span className="text-xs text-[#555]">{expiryDate}</span>
+  }
+
+  const chipInactive = {
+    background: 'var(--surface-2)',
+    border: '1px solid rgba(255,255,255,.08)',
+    color: '#888',
   }
 
   return (
     <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <Package className="text-red-400" size={22} /> パントリー
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Package className="text-rose-400" size={22} /> パントリー
           </h1>
-          <p className="text-sm text-gray-500">{items.length}品の在庫</p>
+          <p className="text-sm text-[#777]">{items.length}品の在庫</p>
         </div>
         <button onClick={openAdd} className="btn-primary text-sm"><Plus size={16} />追加</button>
       </div>
 
       {(expiring.length > 0 || expired.length > 0) && (
-        <div className="card bg-orange-50 border-orange-200">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle size={16} className="text-orange-500" />
-            <p className="text-sm font-semibold text-orange-700">賞味期限に注意</p>
+        <div className="card space-y-2" style={{ background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.18)' }}>
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={16} className="text-amber-400" />
+            <p className="text-sm font-semibold text-amber-400">賞味期限に注意</p>
           </div>
-          {expired.map(i => <p key={i.id} className="text-xs text-red-600">• {i.name} — 期限切れ</p>)}
-          {expiring.map(i => <p key={i.id} className="text-xs text-orange-600">• {i.name} — {getDaysLeft(i.expiryDate!)}</p>)}
+          {expired.map(i => <p key={i.id} className="text-xs text-red-400">• {i.name} — 期限切れ</p>)}
+          {expiring.map(i => <p key={i.id} className="text-xs text-amber-400">• {i.name} — {getDaysLeft(i.expiryDate!)}</p>)}
         </div>
       )}
 
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#555]" />
         <input className="input pl-9" placeholder="食材を検索" value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       {showForm && (
         <div className="card space-y-3 animate-fade-in">
           <div className="flex justify-between items-center">
-            <h2 className="font-bold text-gray-800">{editId ? '食材を編集' : '食材を追加'}</h2>
-            <button onClick={() => setShowForm(false)}><X size={18} className="text-gray-400" /></button>
+            <h2 className="font-bold text-[#ddd]">{editId ? '食材を編集' : '食材を追加'}</h2>
+            <button onClick={() => setShowForm(false)} style={{ color: '#555' }}><X size={18} /></button>
           </div>
           <input className="input" placeholder="食材名 *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
           <div className="flex gap-2">
@@ -114,13 +120,16 @@ export default function PantryPage() {
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map(c => (
               <button key={c} onClick={() => setForm(f => ({ ...f, category: c }))}
-                className={`px-3 py-1 rounded-full text-sm border transition-all ${form.category === c ? 'bg-red-400 text-white border-red-400' : 'bg-white border-gray-200'}`}>
+                className="px-3 py-1 rounded-full text-sm transition-all"
+                style={form.category === c
+                  ? { background: 'rgba(244,63,94,.18)', color: '#fb7185', border: '1px solid rgba(244,63,94,.25)' }
+                  : chipInactive}>
                 {c}
               </button>
             ))}
           </div>
           <div>
-            <label className="text-sm text-gray-600 block mb-1">賞味期限（任意）</label>
+            <label className="text-sm text-[#888] block mb-1">賞味期限（任意）</label>
             <input type="date" className="input" value={form.expiry} onChange={e => setForm(f => ({ ...f, expiry: e.target.value }))} />
           </div>
           <input className="input" placeholder="メモ" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
@@ -131,7 +140,7 @@ export default function PantryPage() {
       )}
 
       {items.length === 0 && (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-[#444]">
           <Package size={40} className="mx-auto mb-3 opacity-30" />
           <p>パントリーは空です</p>
         </div>
@@ -140,24 +149,25 @@ export default function PantryPage() {
       <div className="space-y-4">
         {Object.entries(grouped).map(([cat, catItems]) => (
           <div key={cat}>
-            <div className="bg-gray-100 rounded-lg px-3 py-1.5 mb-2">
-              <span className="text-xs font-semibold text-gray-600">{cat} ({catItems.length})</span>
+            <div className="rounded-lg px-3 py-1.5 mb-2" style={{ background: 'var(--surface-2)' }}>
+              <span className="text-xs font-semibold text-[#666]">{cat} ({catItems.length})</span>
             </div>
             <div className="space-y-1">
               {catItems.map(item => (
-                <div key={item.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
+                <div key={item.id} className="flex items-center gap-3 p-3 rounded-xl"
+                  style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.05)' }}>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{item.name}</p>
+                    <p className="text-sm font-medium text-[#ddd]">{item.name}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      {(item.amount || item.unit) && <span className="text-xs text-gray-400">{item.amount} {item.unit}</span>}
+                      {(item.amount || item.unit) && <span className="text-xs text-[#555]">{item.amount} {item.unit}</span>}
                       {item.expiryDate && getDaysLeft(item.expiryDate)}
-                      {item.notes && <span className="text-xs text-gray-400 truncate">{item.notes}</span>}
+                      {item.notes && <span className="text-xs text-[#555] truncate">{item.notes}</span>}
                     </div>
                   </div>
-                  <button onClick={() => openEdit(item)} className="text-gray-300 hover:text-gray-500 transition-colors">
+                  <button onClick={() => openEdit(item)} className="transition-colors text-[#444] hover:text-[#888]">
                     <Edit3 size={15} />
                   </button>
-                  <button onClick={() => deleteItem(item.id)} className="text-gray-300 hover:text-red-400 transition-colors">
+                  <button onClick={() => deleteItem(item.id)} className="transition-colors text-[#444] hover:text-red-400">
                     <Trash2 size={15} />
                   </button>
                 </div>

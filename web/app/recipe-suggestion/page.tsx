@@ -65,25 +65,26 @@ export default function RecipeSuggestionPage() {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <h1 className="text-xl font-bold flex items-center gap-2">
           <Sparkles className="text-yellow-500" size={22} /> AIレシピ提案
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">気分・体調・在庫から最適なレシピを提案</p>
+        <p className="text-sm text-[#777] mt-0.5">気分・体調・在庫から最適なレシピを提案</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600 flex gap-2">
+        <div className="rounded-xl p-3 text-sm text-red-400 flex gap-2" style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.15)' }}>
           <AlertTriangle size={16} className="flex-shrink-0" />{error}
         </div>
       )}
 
       <div className="card space-y-4">
         <div>
-          <p className="text-sm font-semibold text-gray-700 mb-2">今の気分</p>
+          <p className="text-sm font-semibold text-[#aaa] mb-2">今の気分</p>
           <div className="flex flex-wrap gap-2">
             {MOODS.map(m => (
               <button key={m} onClick={() => setMood(mood === m ? '' : m)}
-                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${mood === m ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200'}`}>
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${mood === m ? 'bg-orange-500 text-white border-orange-500' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                style={mood === m ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                 {m}
               </button>
             ))}
@@ -91,11 +92,12 @@ export default function RecipeSuggestionPage() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-gray-700 mb-2">体調</p>
+          <p className="text-sm font-semibold text-[#aaa] mb-2">体調</p>
           <div className="flex flex-wrap gap-2">
             {CONDITIONS.map(c => (
               <button key={c} onClick={() => setHealth(health === c ? '' : c)}
-                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${health === c ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200'}`}>
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${health === c ? 'bg-blue-500 text-white border-blue-500' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                style={health === c ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                 {c}
               </button>
             ))}
@@ -106,7 +108,7 @@ export default function RecipeSuggestionPage() {
         <input className="input" placeholder="必要な栄養素（例: タンパク質多め、ビタミンC）" value={nutrition} onChange={e => setNutrition(e.target.value)} />
 
         {pantryItems.length > 0 && (
-          <p className="text-xs text-green-600">
+          <p className="text-xs text-emerald-400">
             ✅ パントリーの食材 {pantryItems.length}品 を優先的に使ったレシピを提案します
           </p>
         )}
@@ -128,21 +130,25 @@ function RecipeCard({ recipe, saved, onSave, onAddToShopping }: {
   recipe: Recipe; saved: boolean; onSave: () => void; onAddToShopping: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
-  const diffColor = { EASY: 'bg-green-100 text-green-700', MEDIUM: 'bg-yellow-100 text-yellow-700', HARD: 'bg-red-100 text-red-700' }
+  const diffColor = {
+    EASY: { background: 'rgba(16,185,129,.12)', color: '#34d399' },
+    MEDIUM: { background: 'rgba(234,179,8,.12)', color: '#facc15' },
+    HARD: { background: 'rgba(239,68,68,.12)', color: '#f87171' },
+  }
   const diffLabel = { EASY: '簡単', MEDIUM: '普通', HARD: '難しい' }
 
   return (
     <div className="card space-y-3 animate-fade-in">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-bold text-gray-800 text-lg">{recipe.name}</h3>
-          <p className="text-sm text-gray-500 mt-0.5">{recipe.description}</p>
+          <h3 className="font-bold text-lg">{recipe.name}</h3>
+          <p className="text-sm text-[#777] mt-0.5">{recipe.description}</p>
         </div>
-        <span className={`badge flex-shrink-0 ${diffColor[recipe.difficulty ?? 'MEDIUM']}`}>
+        <span className="badge flex-shrink-0" style={diffColor[recipe.difficulty ?? 'MEDIUM']}>
           {diffLabel[recipe.difficulty ?? 'MEDIUM']}
         </span>
       </div>
-      <div className="flex gap-4 text-sm text-gray-500">
+      <div className="flex gap-4 text-sm text-[#777]">
         <span>🔥 {recipe.calories} kcal</span>
         <span className="flex items-center gap-1"><Clock size={14} />{(recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0)}分</span>
         <span className="flex items-center gap-1"><Users size={14} />{recipe.servings}人分</span>
@@ -159,21 +165,22 @@ function RecipeCard({ recipe, saved, onSave, onAddToShopping }: {
         {expanded ? <><ChevronUp size={16} />詳細を閉じる</> : <><ChevronDown size={16} />材料・手順を見る</>}
       </button>
       {expanded && (
-        <div className="space-y-3 pt-2 border-t">
+        <div className="space-y-3 pt-2 border-t border-[rgba(255,255,255,.06)]">
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-1">材料</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-1">材料</p>
             {recipe.ingredients?.map((ing, i) => (
               <div key={i} className="flex justify-between text-sm py-0.5">
-                <span>{ing.name}</span><span className="text-gray-400">{ing.amount} {ing.unit}</span>
+                <span>{ing.name}</span><span className="text-[#777]">{ing.amount} {ing.unit}</span>
               </div>
             ))}
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-1">作り方</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-1">作り方</p>
             {recipe.steps?.map((step, i) => (
               <div key={i} className="flex gap-2 text-sm mb-2">
-                <span className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">{i+1}</span>
-                <p className="text-gray-700">{step}</p>
+                <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  style={{ background: 'rgba(245,158,11,.15)', color: '#e8b84b' }}>{i+1}</span>
+                <p className="text-[#aaa]">{step}</p>
               </div>
             ))}
           </div>

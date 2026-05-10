@@ -56,10 +56,10 @@ export default function JournalPage() {
     <div className="space-y-5 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <h1 className="text-xl font-bold flex items-center gap-2">
             <BookOpen className="text-green-500" size={22} /> 食事日記
           </h1>
-          <p className="text-sm text-gray-500">{entries.length}件の記録</p>
+          <p className="text-sm text-[#777]">{entries.length}件の記録</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary text-sm">
           <Plus size={16} />記録する
@@ -70,29 +70,30 @@ export default function JournalPage() {
       {showForm && (
         <div className="card space-y-4 animate-fade-in">
           <div className="flex justify-between items-center">
-            <h2 className="font-bold text-gray-800">新しい記録</h2>
-            <button onClick={() => setShowForm(false)}><X size={18} className="text-gray-400" /></button>
+            <h2 className="font-bold">新しい記録</h2>
+            <button onClick={() => setShowForm(false)}><X size={18} className="text-[#777]" /></button>
           </div>
           <input className="input" placeholder="料理名 *" value={form.recipeName} onChange={e => setForm(f => ({ ...f, recipeName: e.target.value }))} />
-          <input type="date" className="input" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+          <input type="date" className="input [color-scheme:dark]" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
 
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-2">評価</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-2">評価</p>
             <div className="flex gap-1">
               {[1,2,3,4,5].map(n => (
                 <button key={n} onClick={() => setForm(f => ({ ...f, rating: n }))}>
-                  <Star size={28} className={n <= form.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'} />
+                  <Star size={28} className={n <= form.rating ? 'text-yellow-400 fill-yellow-400' : 'text-[#333]'} />
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-2">気分</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-2">気分</p>
             <div className="flex flex-wrap gap-2">
               {MOODS.map((m, i) => (
                 <button key={m} onClick={() => setForm(f => ({ ...f, mood: f.mood === m ? '' : m }))}
-                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.mood === m ? 'bg-orange-500 text-white border-orange-500' : 'bg-white border-gray-200'}`}>
+                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.mood === m ? 'bg-orange-500 text-white border-orange-500' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                  style={form.mood === m ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                   {m} {MOOD_LABELS[i]}
                 </button>
               ))}
@@ -100,11 +101,12 @@ export default function JournalPage() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-2">体調</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-2">体調</p>
             <div className="flex flex-wrap gap-2">
               {CONDITIONS.map(c => (
                 <button key={c} onClick={() => setForm(f => ({ ...f, health: f.health === c ? '' : c }))}
-                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.health === c ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-gray-200'}`}>
+                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.health === c ? 'bg-blue-500 text-white border-blue-500' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                  style={form.health === c ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                   {c}
                 </button>
               ))}
@@ -112,11 +114,12 @@ export default function JournalPage() {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-gray-700 mb-2">食後の体調</p>
+            <p className="text-sm font-semibold text-[#aaa] mb-2">食後の体調</p>
             <div className="flex flex-wrap gap-2">
               {FEELINGS.map(f => (
                 <button key={f} onClick={() => setForm(prev => ({ ...prev, feeling: prev.feeling === f ? '' : f }))}
-                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.feeling === f ? 'bg-green-500 text-white border-green-500' : 'bg-white border-gray-200'}`}>
+                  className={`px-3 py-1.5 rounded-full border text-sm transition-all ${form.feeling === f ? 'bg-green-500 text-white border-green-500' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                  style={form.feeling === f ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                   {f}
                 </button>
               ))}
@@ -131,11 +134,11 @@ export default function JournalPage() {
       {/* Search & filters */}
       <div className="space-y-2">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#777]" />
           <input className="input pl-9" placeholder="料理名・コメントで検索" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2 flex-wrap">
-          <select className="input flex-1 text-sm py-1.5" value={sortBy} onChange={e => setSortBy(e.target.value as 'date' | 'rating')}>
+          <select className="input flex-1 text-sm py-1.5 [color-scheme:dark]" value={sortBy} onChange={e => setSortBy(e.target.value as 'date' | 'rating')}>
             <option value="date">日付順</option>
             <option value="rating">評価順</option>
           </select>
@@ -144,7 +147,8 @@ export default function JournalPage() {
           <div className="flex gap-1">
             {[0,1,2,3,4,5].map(n => (
               <button key={n} onClick={() => setFilterRating(filterRating === n ? 0 : n)}
-                className={`px-2 py-1 rounded-lg text-sm border transition-all ${filterRating === n ? 'bg-yellow-400 border-yellow-400 text-white' : 'bg-white border-gray-200 text-gray-500'}`}>
+                className={`px-2 py-1 rounded-lg text-sm border transition-all ${filterRating === n ? 'bg-yellow-400 border-yellow-400 text-white' : 'hover:border-[rgba(255,255,255,.15)]'}`}
+                style={filterRating === n ? {} : { background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.08)', color: '#888' }}>
                 {n === 0 ? '全て' : '★'.repeat(n)}
               </button>
             ))}
@@ -154,7 +158,7 @@ export default function JournalPage() {
 
       {/* Entries */}
       {filtered.length === 0 && (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-[#777]">
           <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
           <p>記録がありません</p>
         </div>
@@ -167,14 +171,14 @@ export default function JournalPage() {
               <div className="flex-1">
                 <button className="text-left w-full" onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-800">{entry.recipeName}</h3>
-                    <ChevronDown size={16} className={`text-gray-400 transition-transform ${expandedId === entry.id ? 'rotate-180' : ''}`} />
+                    <h3 className="font-semibold">{entry.recipeName}</h3>
+                    <ChevronDown size={16} className={`text-[#777] transition-transform ${expandedId === entry.id ? 'rotate-180' : ''}`} />
                   </div>
                   <div className="flex items-center gap-3 mt-1">
                     <div className="flex">
-                      {[1,2,3,4,5].map(n => <Star key={n} size={14} className={n <= entry.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'} />)}
+                      {[1,2,3,4,5].map(n => <Star key={n} size={14} className={n <= entry.rating ? 'text-yellow-400 fill-yellow-400' : 'text-[#333]'} />)}
                     </div>
-                    <span className="text-xs text-gray-400">{entry.date}</span>
+                    <span className="text-xs text-[#777]">{entry.date}</span>
                     {entry.mood && <span className="text-sm">{entry.mood}</span>}
                   </div>
                 </button>
@@ -185,11 +189,11 @@ export default function JournalPage() {
             </div>
 
             {expandedId === entry.id && (
-              <div className="mt-3 pt-3 border-t space-y-2 text-sm animate-fade-in">
-                {entry.comment && <p className="text-gray-700">{entry.comment}</p>}
-                <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-                  {entry.healthCondition && <span className="badge bg-blue-50 text-blue-600">体調: {entry.healthCondition}</span>}
-                  {entry.feelingAfter && <span className="badge bg-green-50 text-green-600">食後: {entry.feelingAfter}</span>}
+              <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,.06)] space-y-2 text-sm animate-fade-in">
+                {entry.comment && <p className="text-[#aaa]">{entry.comment}</p>}
+                <div className="flex flex-wrap gap-2 text-xs text-[#777]">
+                  {entry.healthCondition && <span className="badge" style={{ background: 'rgba(59,130,246,.12)', color: '#60a5fa' }}>体調: {entry.healthCondition}</span>}
+                  {entry.feelingAfter && <span className="badge" style={{ background: 'rgba(16,185,129,.12)', color: '#34d399' }}>食後: {entry.feelingAfter}</span>}
                 </div>
               </div>
             )}

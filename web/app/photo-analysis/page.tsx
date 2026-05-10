@@ -90,14 +90,15 @@ export default function PhotoAnalysisPage() {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <Camera className="text-orange-500" size={22} /> 料理写真解析
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <Camera className="text-orange-400" size={22} /> 料理写真解析
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">写真からレシピ・カロリー・栄養素を自動生成</p>
+        <p className="text-sm text-[#777] mt-0.5">写真からレシピ・カロリー・栄養素を自動生成</p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600 flex gap-2">
+        <div className="rounded-xl p-3 text-sm flex gap-2"
+          style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.18)', color: '#f87171' }}>
           <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />{error}
         </div>
       )}
@@ -138,10 +139,10 @@ export default function PhotoAnalysisPage() {
           <div className="card">
             {editing
               ? <input className="input text-xl font-bold" value={recipe.name ?? ''} onChange={e => updateField('name', e.target.value)} />
-              : <h2 className="text-xl font-bold text-gray-800">{recipe.name}</h2>}
+              : <h2 className="text-xl font-bold text-[#e0e0e0]">{recipe.name}</h2>}
             {editing
               ? <textarea className="input mt-2 text-sm" rows={2} value={recipe.description ?? ''} onChange={e => updateField('description', e.target.value)} />
-              : <p className="text-sm text-gray-500 mt-1">{recipe.description}</p>}
+              : <p className="text-sm text-[#777] mt-1">{recipe.description}</p>}
           </div>
 
           {/* Nutrition summary */}
@@ -151,16 +152,16 @@ export default function PhotoAnalysisPage() {
               {[
                 { label: 'カロリー', value: editing ? undefined : `${recipe.calories ?? 0}`, unit: 'kcal', field: 'calories' },
               ].map(({ label, value, unit, field }) => (
-                <div key={label} className="bg-orange-50 rounded-xl p-2">
-                  <p className="text-lg font-bold text-orange-600">
+                <div key={label} className="rounded-xl p-2" style={{ background: 'rgba(249,115,22,.1)' }}>
+                  <p className="text-lg font-bold text-orange-400">
                     {editing
-                      ? <input type="number" className="w-full text-center bg-transparent font-bold text-orange-600 text-lg"
+                      ? <input type="number" className="w-full text-center bg-transparent font-bold text-orange-400 text-lg"
                           value={(recipe as Record<string, unknown>)[field] as number ?? 0}
                           onChange={e => updateField(field as keyof Recipe, parseInt(e.target.value))} />
                       : value}
                   </p>
-                  <p className="text-xs text-gray-500">{unit}</p>
-                  <p className="text-xs font-medium text-gray-700">{label}</p>
+                  <p className="text-xs text-[#666]">{unit}</p>
+                  <p className="text-xs font-medium text-[#999]">{label}</p>
                 </div>
               ))}
               {recipe.nutrition && Object.entries({
@@ -168,9 +169,9 @@ export default function PhotoAnalysisPage() {
                 '炭水化物': `${recipe.nutrition.carbs}g`,
                 '脂質': `${recipe.nutrition.fat}g`,
               }).map(([k, v]) => (
-                <div key={k} className="bg-gray-50 rounded-xl p-2">
-                  <p className="text-lg font-bold text-gray-700">{v}</p>
-                  <p className="text-xs font-medium text-gray-600 mt-1">{k}</p>
+                <div key={k} className="rounded-xl p-2" style={{ background: 'var(--surface-2)' }}>
+                  <p className="text-lg font-bold text-[#bbb]">{v}</p>
+                  <p className="text-xs font-medium text-[#777] mt-1">{k}</p>
                 </div>
               ))}
             </div>
@@ -188,12 +189,12 @@ export default function PhotoAnalysisPage() {
                   <input className="input flex-1" placeholder="食材名" value={ing.name} onChange={e => updateIngredient(i, 'name', e.target.value)} />
                   <input className="input w-20" placeholder="量" value={ing.amount} onChange={e => updateIngredient(i, 'amount', e.target.value)} />
                   <input className="input w-16" placeholder="単位" value={ing.unit} onChange={e => updateIngredient(i, 'unit', e.target.value)} />
-                  <button onClick={() => removeIngredient(i)} className="text-red-400 hover:text-red-600"><Trash2 size={16} /></button>
+                  <button onClick={() => removeIngredient(i)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
                 </div>
               ) : (
-                <div key={i} className="flex justify-between text-sm py-1 border-b border-gray-50">
-                  <span className="text-gray-800">{ing.name}</span>
-                  <span className="text-gray-500">{ing.amount} {ing.unit}</span>
+                <div key={i} className="flex justify-between text-sm py-1.5 border-b" style={{ borderColor: 'rgba(255,255,255,.04)' }}>
+                  <span className="text-[#ccc]">{ing.name}</span>
+                  <span className="text-[#666]">{ing.amount} {ing.unit}</span>
                 </div>
               ))}
             </div>
@@ -208,7 +209,8 @@ export default function PhotoAnalysisPage() {
             <div className="space-y-3">
               {recipe.steps?.map((step: string, i: number) => (
                 <div key={i} className="flex gap-3">
-                  <span className="w-7 h-7 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                    style={{ background: 'rgba(232,184,75,.15)', color: '#e8b84b' }}>
                     {i + 1}
                   </span>
                   {editing ? (
@@ -217,7 +219,7 @@ export default function PhotoAnalysisPage() {
                       <button onClick={() => removeStep(i)} className="text-red-400"><Trash2 size={16} /></button>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-700 leading-relaxed">{step}</p>
+                    <p className="text-sm text-[#bbb] leading-relaxed">{step}</p>
                   )}
                 </div>
               ))}
@@ -226,18 +228,18 @@ export default function PhotoAnalysisPage() {
 
           {/* Plating advice */}
           {recipe.platingAdvice && (
-            <div className="card bg-purple-50 border-purple-100">
-              <h3 className="section-title text-purple-700">🍽️ 盛り付けアドバイス</h3>
-              <p className="text-sm text-purple-800">{recipe.platingAdvice}</p>
+            <div className="card" style={{ background: 'rgba(168,85,247,.07)', border: '1px solid rgba(168,85,247,.15)' }}>
+              <h3 className="section-title text-purple-300">🍽️ 盛り付けアドバイス</h3>
+              <p className="text-sm text-purple-300/80">{recipe.platingAdvice}</p>
             </div>
           )}
 
           {/* Remake ideas */}
           {recipe.remakeIdeas && recipe.remakeIdeas.length > 0 && (
-            <div className="card bg-green-50 border-green-100">
-              <h3 className="section-title text-green-700">🔄 リメイクアイデア</h3>
+            <div className="card" style={{ background: 'rgba(16,185,129,.07)', border: '1px solid rgba(16,185,129,.15)' }}>
+              <h3 className="section-title text-emerald-400">🔄 リメイクアイデア</h3>
               {recipe.remakeIdeas.map((idea: string, i: number) => (
-                <p key={i} className="text-sm text-green-800">• {idea}</p>
+                <p key={i} className="text-sm text-emerald-400/80">• {idea}</p>
               ))}
             </div>
           )}
