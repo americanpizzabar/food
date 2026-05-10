@@ -29,7 +29,6 @@ export default function MenuAnalysisPage() {
   const { value: guides, update: updateGuides } =
     useLocalStorage<DishCookingGuide[]>(KEYS.DISH_GUIDES, [])
 
-  // Step 1: scan menu image
   const scanMenu = useCallback(async () => {
     if (!image) return
     setScanning(true)
@@ -46,7 +45,6 @@ export default function MenuAnalysisPage() {
       if (!res.ok) throw new Error(data.error)
       setDishes(data.dishes)
 
-      // Save this scan to history
       const record: MenuAnalysisResult = {
         id: generateId(),
         imageDataUrl: image,
@@ -61,7 +59,6 @@ export default function MenuAnalysisPage() {
     }
   }, [image, apiKey, updateAnalyses])
 
-  // Step 2: generate cooking guide
   const getGuide = useCallback(async (dishName: string) => {
     if (!dishName.trim()) return
     setGeneratingGuide(true)
@@ -100,25 +97,23 @@ export default function MenuAnalysisPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <ScanSearch className="text-purple-500" size={22} />
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <ScanSearch className="text-purple-400" size={22} />
             メニュー解析
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-[#777] mt-0.5">
             レストランのメニューを撮影 → プロ級レシピを取得
           </p>
         </div>
-        <button
-          onClick={() => setShowHistory(!showHistory)}
-          className="btn-secondary text-sm"
-        >
+        <button onClick={() => setShowHistory(!showHistory)} className="btn-secondary text-sm">
           <History size={16} />
           履歴
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600 flex items-center gap-2">
+        <div className="rounded-xl p-3 text-sm flex items-center gap-2"
+          style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.18)', color: '#f87171' }}>
           <AlertTriangle size={16} />
           {error}
         </div>
@@ -130,21 +125,22 @@ export default function MenuAnalysisPage() {
           <h2 className="section-title">解析履歴</h2>
 
           {analyses.length === 0 && guides.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-4">履歴はありません</p>
+            <p className="text-sm text-[#666] text-center py-4">履歴はありません</p>
           )}
 
           {guides.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">料理ガイド履歴</h3>
+              <h3 className="text-sm font-semibold text-[#aaa] mb-2">料理ガイド履歴</h3>
               <div className="space-y-2">
                 {guides.map(g => (
-                  <div key={g.id} className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                  <div key={g.id} className="flex items-center justify-between p-3 rounded-xl"
+                    style={{ background: 'rgba(168,85,247,.08)', border: '1px solid rgba(168,85,247,.15)' }}>
                     <button
                       className="flex-1 text-left"
                       onClick={() => { setGuide(g); setShowHistory(false) }}
                     >
-                      <p className="font-medium text-gray-800 text-sm">{g.dishName}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="font-medium text-[#e0e0e0] text-sm">{g.dishName}</p>
+                      <p className="text-xs text-[#666]">
                         {new Date(g.analysisDate).toLocaleDateString('ja-JP')}
                       </p>
                     </button>
@@ -159,16 +155,17 @@ export default function MenuAnalysisPage() {
 
           {analyses.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">メニュースキャン履歴</h3>
+              <h3 className="text-sm font-semibold text-[#aaa] mb-2">メニュースキャン履歴</h3>
               <div className="space-y-2">
                 {analyses.map(a => (
-                  <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl"
+                    style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.05)' }}>
                     <div className="flex-1">
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-[#777]">
                         {new Date(a.analysisDate).toLocaleDateString('ja-JP')} —
                         {a.detectedDishes.length}品検出
                       </p>
-                      <p className="text-sm text-gray-700 truncate">
+                      <p className="text-sm text-[#bbb] truncate">
                         {a.detectedDishes.slice(0, 3).map(d => d.name).join('、')}
                         {a.detectedDishes.length > 3 && '…'}
                       </p>
@@ -184,7 +181,7 @@ export default function MenuAnalysisPage() {
         </div>
       )}
 
-      {/* Step 1: Upload menu */}
+      {/* Step 1 */}
       {!guide && (
         <div className="card space-y-4">
           <h2 className="section-title">STEP 1 — メニューを撮影</h2>
@@ -195,21 +192,16 @@ export default function MenuAnalysisPage() {
             label="レストランのメニューを撮影またはアップロード"
           />
           {image && (
-            <button
-              onClick={scanMenu}
-              disabled={scanning}
-              className="btn-primary w-full justify-center"
-            >
+            <button onClick={scanMenu} disabled={scanning} className="btn-primary w-full justify-center">
               {scanning
                 ? <><Loader2 size={18} className="animate-spin" />解析中…</>
-                : <><ScanSearch size={18} />メニューを解析する</>
-              }
+                : <><ScanSearch size={18} />メニューを解析する</>}
             </button>
           )}
         </div>
       )}
 
-      {/* Step 2: Select dish */}
+      {/* Step 2 */}
       {dishes.length > 0 && !guide && (
         <div className="card space-y-4">
           <h2 className="section-title">
@@ -221,25 +213,27 @@ export default function MenuAnalysisPage() {
               <button
                 key={i}
                 onClick={() => setSelectedDish(dish.name)}
-                className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
-                  selectedDish === dish.name
-                    ? 'border-purple-400 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                }`}
+                className="w-full text-left p-3 rounded-xl transition-all"
+                style={selectedDish === dish.name
+                  ? { background: 'rgba(168,85,247,.12)', border: '2px solid rgba(168,85,247,.4)' }
+                  : { background: 'var(--surface-2)', border: '2px solid rgba(255,255,255,.06)' }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-medium text-gray-800">{dish.name}</p>
+                    <p className="font-medium text-[#e0e0e0]">{dish.name}</p>
                     {dish.description && (
-                      <p className="text-xs text-gray-500 mt-0.5">{dish.description}</p>
+                      <p className="text-xs text-[#777] mt-0.5">{dish.description}</p>
                     )}
                   </div>
                   <div className="flex-shrink-0 text-right">
                     {dish.category && (
-                      <span className="badge bg-gray-100 text-gray-600">{dish.category}</span>
+                      <span className="badge"
+                        style={{ background: 'rgba(255,255,255,.06)', color: '#aaa' }}>
+                        {dish.category}
+                      </span>
                     )}
                     {dish.price && (
-                      <p className="text-xs text-gray-400 mt-1">{dish.price}</p>
+                      <p className="text-xs text-[#666] mt-1">{dish.price}</p>
                     )}
                   </div>
                 </div>
@@ -247,9 +241,8 @@ export default function MenuAnalysisPage() {
             ))}
           </div>
 
-          {/* Manual dish input */}
-          <div className="border-t pt-4">
-            <p className="text-sm text-gray-500 mb-2">または料理名を直接入力</p>
+          <div className="border-t pt-4" style={{ borderColor: 'rgba(255,255,255,.06)' }}>
+            <p className="text-sm text-[#888] mb-2">または料理名を直接入力</p>
             <div className="flex gap-2">
               <input
                 className="input flex-1"
@@ -276,21 +269,20 @@ export default function MenuAnalysisPage() {
             >
               {generatingGuide
                 ? <><Loader2 size={18} className="animate-spin" />プロ級レシピを生成中…</>
-                : <><ChefHat size={18} />「{selectedDish}」のプロ級レシピを取得</>
-              }
+                : <><ChefHat size={18} />「{selectedDish}」のプロ級レシピを取得</>}
             </button>
           )}
         </div>
       )}
 
-      {/* Step 3: Cooking Guide */}
+      {/* Step 3 */}
       {guide && <CookingGuide guide={guide} onClose={() => setGuide(null)} />}
 
-      {/* Direct search (no image) */}
+      {/* Direct search */}
       {!guide && dishes.length === 0 && (
         <div className="card">
           <h2 className="section-title">料理名で直接検索</h2>
-          <p className="text-sm text-gray-500 mb-3">
+          <p className="text-sm text-[#777] mb-3">
             メニュー写真なしでも、料理名を入力してプロ級レシピを取得できます
           </p>
           <div className="flex gap-2">
@@ -306,10 +298,7 @@ export default function MenuAnalysisPage() {
               disabled={!customDish.trim() || generatingGuide}
               className="btn-primary flex-shrink-0"
             >
-              {generatingGuide
-                ? <Loader2 size={18} className="animate-spin" />
-                : <ChefHat size={18} />
-              }
+              {generatingGuide ? <Loader2 size={18} className="animate-spin" /> : <ChefHat size={18} />}
             </button>
           </div>
         </div>
@@ -328,21 +317,27 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
   return (
     <div className="space-y-4 animate-fade-in">
       {/* Header */}
-      <div className="card bg-gradient-to-br from-purple-600 to-purple-700 text-white border-0">
-        <div className="flex items-start justify-between gap-3">
+      <div className="card relative overflow-hidden p-5"
+        style={{
+          background: 'linear-gradient(135deg, #2a1a4a 0%, #1a0e2e 100%)',
+          border: '1px solid rgba(168,85,247,.25)',
+        }}>
+        <div className="absolute -top-12 -right-8 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(168,85,247,.18), transparent 70%)' }} />
+        <div className="relative flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <ChefHat size={20} />
-              <span className="text-sm font-medium text-purple-200">プロ級レシピ</span>
+              <ChefHat size={20} className="text-purple-300" />
+              <span className="text-sm font-medium text-purple-300">プロ級レシピ</span>
             </div>
-            <h2 className="text-xl font-bold">{guide.dishName}</h2>
+            <h2 className="text-xl font-bold text-white">{guide.dishName}</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
             <X size={18} />
           </button>
         </div>
         {guide.overview && (
-          <p className="text-purple-100 text-sm mt-3 leading-relaxed">{guide.overview}</p>
+          <p className="text-purple-100/80 text-sm mt-3 leading-relaxed relative">{guide.overview}</p>
         )}
       </div>
 
@@ -356,26 +351,27 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       >
         <div className="space-y-3">
           {guide.ingredients?.map((ing, i) => (
-            <div key={i} className="p-3 bg-gray-50 rounded-xl">
+            <div key={i} className="p-3 rounded-xl"
+              style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.04)' }}>
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold text-[#e0e0e0]">
                     {ing.name}
-                    <span className="ml-2 text-sm font-normal text-gray-500">
+                    <span className="ml-2 text-sm font-normal text-[#777]">
                       {ing.amount} {ing.unit}
                     </span>
                   </p>
                   {ing.quality && (
-                    <p className="text-xs mt-1 text-purple-600 font-medium">⭐ {ing.quality}</p>
+                    <p className="text-xs mt-1 text-purple-300 font-medium">⭐ {ing.quality}</p>
                   )}
                   {ing.whereToFind && (
-                    <p className="text-xs mt-1 text-blue-600">🏪 {ing.whereToFind}</p>
+                    <p className="text-xs mt-1 text-blue-300">🏪 {ing.whereToFind}</p>
                   )}
                   {ing.notes && (
-                    <p className="text-xs mt-1 text-gray-500">💡 {ing.notes}</p>
+                    <p className="text-xs mt-1 text-[#888]">💡 {ing.notes}</p>
                   )}
                   {ing.substitute && (
-                    <p className="text-xs mt-1 text-green-600">↔️ 代替: {ing.substitute}</p>
+                    <p className="text-xs mt-1 text-emerald-400">↔️ 代替: {ing.substitute}</p>
                   )}
                 </div>
               </div>
@@ -395,10 +391,11 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         >
           <div className="space-y-3">
             {guide.techniques.map((t, i) => (
-              <div key={i} className="p-3 bg-yellow-50 rounded-xl border border-yellow-100">
-                <p className="font-semibold text-gray-800 mb-1">🔥 {t.name}</p>
-                <p className="text-sm text-gray-700 mb-1">{t.description}</p>
-                <p className="text-xs text-yellow-700">なぜ重要？ {t.whyImportant}</p>
+              <div key={i} className="p-3 rounded-xl"
+                style={{ background: 'rgba(232,184,75,.08)', border: '1px solid rgba(232,184,75,.18)' }}>
+                <p className="font-semibold text-[#e0e0e0] mb-1">🔥 {t.name}</p>
+                <p className="text-sm text-[#bbb] mb-1">{t.description}</p>
+                <p className="text-xs text-amber-400">なぜ重要？ {t.whyImportant}</p>
               </div>
             ))}
           </div>
@@ -415,45 +412,53 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       >
         <div className="space-y-3">
           {guide.steps?.map((step, i) => (
-            <div key={i} className="border border-gray-100 rounded-xl overflow-hidden">
+            <div key={i} className="rounded-xl overflow-hidden"
+              style={{ border: '1px solid rgba(255,255,255,.06)' }}>
               <button
-                className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-50"
+                className="w-full flex items-center gap-3 p-3 text-left transition-colors hover:bg-[rgba(255,255,255,.03)]"
                 onClick={() => setExpandedStep(expandedStep === i ? null : i)}
               >
-                <span className="w-8 h-8 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{ background: 'rgba(168,85,247,.18)', color: '#c084fc' }}>
                   {step.stepNumber}
                 </span>
-                <span className="font-medium text-gray-800 flex-1">{step.title}</span>
+                <span className="font-medium text-[#e0e0e0] flex-1">{step.title}</span>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {step.duration && (
-                    <span className="badge bg-blue-50 text-blue-600 text-xs">
+                    <span className="badge text-xs"
+                      style={{ background: 'rgba(59,130,246,.12)', color: '#60a5fa' }}>
                       <Clock size={10} className="mr-1" />{step.duration}
                     </span>
                   )}
-                  {expandedStep === i ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {expandedStep === i
+                    ? <ChevronUp size={16} className="text-[#888]" />
+                    : <ChevronDown size={16} className="text-[#888]" />}
                 </div>
               </button>
               {expandedStep === i && (
-                <div className="px-4 pb-4 space-y-3 bg-white">
-                  <p className="text-sm text-gray-700 leading-relaxed">{step.description}</p>
+                <div className="px-4 pb-4 space-y-3"
+                  style={{ background: 'var(--surface-2)' }}>
+                  <p className="text-sm text-[#bbb] leading-relaxed pt-3">{step.description}</p>
                   {step.temperature && (
-                    <div className="flex items-center gap-1 text-xs text-orange-600">
+                    <div className="flex items-center gap-1 text-xs text-orange-400">
                       <Thermometer size={14} />
                       温度: {step.temperature}
                     </div>
                   )}
                   {step.tips?.length > 0 && (
-                    <div className="bg-green-50 rounded-lg p-3">
-                      <p className="text-xs font-semibold text-green-700 mb-1">💡 プロのコツ</p>
+                    <div className="rounded-lg p-3"
+                      style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.15)' }}>
+                      <p className="text-xs font-semibold text-emerald-400 mb-1">💡 プロのコツ</p>
                       {step.tips.map((tip, j) => (
-                        <p key={j} className="text-xs text-green-700">• {tip}</p>
+                        <p key={j} className="text-xs text-emerald-400/80">• {tip}</p>
                       ))}
                     </div>
                   )}
                   {step.warnings && (
-                    <div className="bg-red-50 rounded-lg p-3 flex gap-2">
-                      <AlertTriangle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-red-600">{step.warnings}</p>
+                    <div className="rounded-lg p-3 flex gap-2"
+                      style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.15)' }}>
+                      <AlertTriangle size={14} className="text-red-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-red-400">{step.warnings}</p>
                     </div>
                   )}
                 </div>
@@ -474,9 +479,10 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         >
           <div className="space-y-2">
             {guide.professionalTips.map((tip, i) => (
-              <div key={i} className="flex gap-2 p-3 bg-amber-50 rounded-xl">
-                <span className="text-amber-500 flex-shrink-0">✨</span>
-                <p className="text-sm text-gray-700">{tip}</p>
+              <div key={i} className="flex gap-2 p-3 rounded-xl"
+                style={{ background: 'rgba(232,184,75,.08)', border: '1px solid rgba(232,184,75,.15)' }}>
+                <span className="text-amber-400 flex-shrink-0">✨</span>
+                <p className="text-sm text-[#bbb]">{tip}</p>
               </div>
             ))}
           </div>
@@ -492,11 +498,11 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
           expanded={expandedSection === 'plating'}
           onToggle={() => toggleSection('plating')}
         >
-          <p className="text-sm text-gray-700 leading-relaxed">{guide.platingGuide}</p>
+          <p className="text-sm text-[#bbb] leading-relaxed">{guide.platingGuide}</p>
         </CollapsibleSection>
       )}
 
-      {/* Drink pairings */}
+      {/* Drinks */}
       {guide.drinkPairings?.length > 0 && (
         <CollapsibleSection
           title="ドリンクペアリング"
@@ -507,13 +513,13 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         >
           <div className="space-y-2">
             {guide.drinkPairings.map((drink, i) => (
-              <p key={i} className="text-sm text-gray-700">🍷 {drink}</p>
+              <p key={i} className="text-sm text-[#bbb]">🍷 {drink}</p>
             ))}
           </div>
         </CollapsibleSection>
       )}
 
-      {/* Common mistakes */}
+      {/* Mistakes */}
       {guide.commonMistakes?.length > 0 && (
         <CollapsibleSection
           title="よくある失敗と対処法"
@@ -524,9 +530,10 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         >
           <div className="space-y-2">
             {guide.commonMistakes.map((m, i) => (
-              <div key={i} className="flex gap-2 p-3 bg-red-50 rounded-xl">
+              <div key={i} className="flex gap-2 p-3 rounded-xl"
+                style={{ background: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.15)' }}>
                 <span className="text-red-400 flex-shrink-0">⚠️</span>
-                <p className="text-sm text-gray-700">{m}</p>
+                <p className="text-sm text-[#bbb]">{m}</p>
               </div>
             ))}
           </div>
@@ -544,7 +551,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         >
           <div className="space-y-2">
             {guide.variations.map((v, i) => (
-              <p key={i} className="text-sm text-gray-700">🔄 {v}</p>
+              <p key={i} className="text-sm text-[#bbb]">🔄 {v}</p>
             ))}
           </div>
         </CollapsibleSection>
@@ -573,14 +580,15 @@ function CollapsibleSection({
         className="w-full flex items-center justify-between gap-3 text-left"
         onClick={onToggle}
       >
-        <div className="flex items-center gap-2 text-gray-800 font-semibold">
-          {icon}
+        <div className="flex items-center gap-2 text-[#e0e0e0] font-semibold">
+          <span style={{ color: '#e8b84b' }}>{icon}</span>
           {title}
         </div>
-        {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        {expanded
+          ? <ChevronUp size={18} className="text-[#888]" />
+          : <ChevronDown size={18} className="text-[#888]" />}
       </button>
       {expanded && <div className="mt-4">{children}</div>}
     </div>
   )
 }
-
