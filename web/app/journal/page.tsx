@@ -31,8 +31,8 @@ export default function JournalPage() {
     if (search) list = list.filter(e => e.recipeName.includes(search) || e.comment.includes(search))
     if (filterRating) list = list.filter(e => e.rating === filterRating)
     list.sort((a, b) => {
-      const key = sortBy === 'date' ? 'date' : 'rating'
-      return sortDir === 'desc' ? b[key].localeCompare(a[key]) : a[key].localeCompare(b[key])
+      const cmp = sortBy === 'date' ? a.date.localeCompare(b.date) : a.rating - b.rating
+      return sortDir === 'desc' ? -cmp : cmp
     })
     return list
   }, [entries, search, filterRating, sortBy, sortDir])

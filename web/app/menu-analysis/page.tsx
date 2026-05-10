@@ -9,7 +9,7 @@ import { MenuAnalysisResult, DishCookingGuide, MenuDish } from '@/lib/types'
 import {
   ScanSearch, ChefHat, Trash2, ChevronDown, ChevronUp,
   Star, AlertTriangle, Wine, Lightbulb, Utensils, Clock, Thermometer,
-  Loader2, History, X,
+  Loader2, History, X, Sparkles,
 } from 'lucide-react'
 
 export default function MenuAnalysisPage() {
