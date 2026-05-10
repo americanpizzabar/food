@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { KEYS, generateId } from '@/lib/storage'
 import { MealPlan } from '@/lib/types'
@@ -37,18 +37,25 @@ function toDateStr(d: Date) { return d.toISOString().slice(0, 10) }
 
 export default function CalendarPage() {
   const { value: plans, update } = useLocalStorage<MealPlan[]>(KEYS.MEAL_PLANS, [])
-  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()))
+  const [weekStart, setWeekStart] = useState<Date | null>(null)
+  const [todayStr, setTodayStr] = useState('')
   const [dialog, setDialog] = useState<{ date: string; mealType: typeof MEAL_TYPES[number]; plan?: MealPlan } | null>(null)
   const [formName, setFormName] = useState('')
   const [formNotes, setFormNotes] = useState('')
 
-  const weekDays = useMemo(() =>
-    Array.from({ length: 7 }, (_, i) => {
+  useEffect(() => {
+    const today = new Date()
+    setWeekStart(getMonday(today))
+    setTodayStr(toDateStr(today))
+  }, [])
+
+  const weekDays = useMemo(() => {
+    if (!weekStart) return []
+    return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(weekStart); d.setDate(d.getDate() + i)
       return { dateStr: toDateStr(d), label: DAY_LABELS[i], day: d.getDate() }
-    }), [weekStart])
-
-  const todayStr = toDateStr(new Date())
+    })
+  }, [weekStart])
 
   const plansMap = useMemo(() => {
     const m: Record<string, MealPlan[]> = {}
@@ -59,9 +66,9 @@ export default function CalendarPage() {
     return m
   }, [plans])
 
-  const prevWeek = () => { const d = new Date(weekStart); d.setDate(d.getDate() - 7); setWeekStart(d) }
-  const nextWeek = () => { const d = new Date(weekStart); d.setDate(d.getDate() + 7); setWeekStart(d) }
-  const goToday = () => setWeekStart(getMonday(new Date()))
+  const prevWeek = () => { if (!weekStart) return; const d = new Date(weekStart); d.setDate(d.getDate() - 7); setWeekStart(d) }
+  const nextWeek = () => { if (!weekStart) return; const d = new Date(weekStart); d.setDate(d.getDate() + 7); setWeekStart(d) }
+  const goToday = () => { const today = new Date(); setWeekStart(getMonday(today)); setTodayStr(toDateStr(today)) }
 
   const openAdd = (date: string, mealType: typeof MEAL_TYPES[number]) => {
     setDialog({ date, mealType })
@@ -89,7 +96,22 @@ export default function CalendarPage() {
 
   const deletePlan = (id: string) => { update(prev => prev.filter(p => p.id !== id)); setDialog(null) }
 
-  const weekLabel = `${weekDays[0].dateStr} 〜 ${weekDays[6].dateStr}`
+  const weekLabel = weekDays.length === 7
+    ? `${weekDays[0].dateStr} 〜 ${weekDays[6].dateStr}`
+    : ''
+
+  if (!weekStart) {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <div>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Calendar className="text-indigo-400" size={22} /> 献立カレンダー
+          </h1>
+        </div>
+        <div className="card" style={{ minHeight: '300px' }} />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 animate-fade-in">
