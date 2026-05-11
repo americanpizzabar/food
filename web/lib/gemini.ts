@@ -21,6 +21,16 @@ function isQuotaError(e: unknown): boolean {
   return m.includes('429') || m.includes('Quota') || m.includes('quota') || m.includes('RESOURCE_EXHAUSTED')
 }
 
+function isOverloadError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  const m = e.message
+  return m.includes('503') || m.includes('Service Unavailable') || m.includes('overloaded') || m.includes('high demand')
+}
+
+function isRetryableError(e: unknown): boolean {
+  return isQuotaError(e) || isOverloadError(e)
+}
+
 function isAuthError(e: unknown): boolean {
   if (!(e instanceof Error)) return false
   const m = e.message
@@ -30,6 +40,9 @@ function isAuthError(e: unknown): boolean {
 function friendlyError(e: unknown): never {
   if (isQuotaError(e)) {
     throw new Error('AI APIの利用上限に達しました。しばらく時間を置いてから再試行するか、Google AI Studioで料金プランを確認してください。')
+  }
+  if (isOverloadError(e)) {
+    throw new Error('AIサーバーが混雑しています。しばらく待ってから再試行してください。')
   }
   if (isAuthError(e)) {
     throw new Error('APIキーが無効か、権限がありません。設定画面で正しいGoogle AI StudioのAPIキーを設定してください。')
@@ -51,7 +64,7 @@ async function generateWithFallback(prompt: Prompt, apiKey?: string): Promise<st
       return result.response.text()
     } catch (e) {
       lastError = e
-      if (!isQuotaError(e)) break
+      if (!isRetryableError(e)) break
     }
   }
   friendlyError(lastError)
