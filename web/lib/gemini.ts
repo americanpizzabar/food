@@ -72,21 +72,55 @@ async function generateWithFallback(prompt: Prompt, apiKey?: string): Promise<st
 
 // ---- Food Photo Analysis ----
 export async function analyzeFoodPhoto(imageDataUrl: string, apiKey?: string): Promise<string> {
-  const prompt = `あなたはプロの料理専門家AIです。この料理の写真を分析し、以下のJSON形式のみで回答してください（他の文章は不要）:
+  const prompt = `あなたはミシュラン三つ星シェフ兼栄養士のAIです。この料理の写真を詳細に分析し、プロレベルの情報を含むJSON形式のみで回答してください（他の文章は一切不要）:
 {
   "name": "料理名（日本語）",
-  "description": "料理の説明（100文字以内）",
-  "ingredients": [{"name": "食材名", "amount": "量", "unit": "単位", "calories": カロリー数値}],
-  "steps": ["手順1", "手順2"],
+  "description": "料理の詳細な説明（150文字以内）",
+  "origin": "この料理の起源・歴史・文化的背景（80文字以内）",
+  "costEstimate": "安い|普通|高め",
+  "ingredients": [
+    {
+      "name": "食材名",
+      "amount": "量",
+      "unit": "単位",
+      "calories": カロリー数値,
+      "selectionTip": "この食材の選び方・品質見極めのプロのポイント（30文字）"
+    }
+  ],
+  "steps": ["詳細な手順1（プロのポイント含む）", "手順2"],
   "calories": 1人分カロリー数値,
-  "nutrition": {"protein": タンパク質g, "carbs": 炭水化物g, "fat": 脂質g, "fiber": 食物繊維g, "sugar": 糖質g, "sodium": ナトリウムmg},
+  "nutrition": {
+    "protein": タンパク質g,
+    "carbs": 炭水化物g,
+    "fat": 脂質g,
+    "fiber": 食物繊維g,
+    "sugar": 糖質g,
+    "sodium": ナトリウムmg
+  },
   "tags": ["タグ"],
   "servings": 人数,
-  "cookTimeMinutes": 調理時間,
-  "prepTimeMinutes": 下準備時間,
+  "cookTimeMinutes": 調理時間分,
+  "prepTimeMinutes": 下準備時間分,
   "difficulty": "EASY|MEDIUM|HARD",
-  "platingAdvice": "盛り付けアドバイス",
-  "remakeIdeas": ["リメイク案1", "リメイク案2"]
+  "cookingTechniques": [
+    {
+      "name": "技法名（例: メイラード反応・乳化・低温調理）",
+      "description": "この料理でどう使われているか（60文字）",
+      "whyImportant": "なぜこの料理に重要か（40文字）"
+    }
+  ],
+  "professionalTips": [
+    "プロのコツ1（具体的・実践的）",
+    "プロのコツ2",
+    "プロのコツ3",
+    "プロのコツ4"
+  ],
+  "platingAdvice": "プロ級の盛り付けアドバイス（器の選び方・ソースの引き方・色のバランス・高さの出し方を含む詳細なガイド）",
+  "drinkPairings": ["合うワイン・日本酒・ビール・ノンアルコール飲料1", "合う飲み物2", "合う飲み物3"],
+  "healthBenefits": ["この料理の健康効果・栄養メリット1", "健康効果2", "健康効果3"],
+  "storageInfo": "保存方法（冷蔵・冷凍・常温の別、保存期間、再加熱のコツ）",
+  "remakeIdeas": ["残り物のリメイク案1", "リメイク案2"],
+  "variations": ["アレンジ・バリエーション案1（異なる食材・調理法）", "バリエーション2"]
 }`
 
   return generateWithFallback([imagePartFromDataUrl(imageDataUrl), prompt], apiKey)

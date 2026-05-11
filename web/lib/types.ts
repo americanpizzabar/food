@@ -4,6 +4,7 @@ export interface Ingredient {
   unit: string
   calories?: number
   notes?: string
+  selectionTip?: string  // 食材の選び方・品質のポイント
 }
 
 export interface NutritionInfo {
@@ -33,6 +34,15 @@ export interface Recipe {
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
   platingAdvice?: string
   remakeIdeas?: string[]
+  // Professional detail fields (from photo analysis)
+  origin?: string                    // 料理の起源・文化的背景
+  cookingTechniques?: CookingTechnique[]  // 使われている調理技法
+  professionalTips?: string[]        // プロのコツ
+  drinkPairings?: string[]           // ドリンクペアリング
+  healthBenefits?: string[]          // 健康効果・栄養メリット
+  storageInfo?: string               // 保存方法
+  variations?: string[]              // アレンジ・バリエーション
+  costEstimate?: string              // コスト感（安い／普通／高め）
   createdAt: string
 }
 
