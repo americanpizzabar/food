@@ -69,11 +69,11 @@ export default function MenuAnalysisPage() {
 
       const record: MenuAnalysisResult = {
         id: generateId(),
-        imageDataUrl: image,
+        imageDataUrl: '',
         detectedDishes: data.dishes,
         analysisDate: new Date().toISOString(),
       }
-      updateAnalyses(prev => [record, ...prev].slice(0, 30))
+      updateAnalyses(prev => [record, ...prev].slice(0, 20))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : '解析に失敗しました')
     } finally {

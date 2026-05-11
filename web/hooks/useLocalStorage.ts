@@ -16,7 +16,11 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
   const update = useCallback((next: T | ((prev: T) => T)) => {
     setValue(prev => {
       const updated = typeof next === 'function' ? (next as (p: T) => T)(prev) : next
-      setItem(key, updated)
+      try {
+        setItem(key, updated)
+      } catch (e) {
+        console.error(`localStorage save failed for ${key}:`, e)
+      }
       return updated
     })
   }, [key])

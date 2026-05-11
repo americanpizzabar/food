@@ -11,9 +11,44 @@ export function getItem<T>(key: string, defaultValue: T): T {
   }
 }
 
+export class StorageQuotaError extends Error {
+  constructor() {
+    super('保存容量の上限に達しました。古い履歴を削除してください。')
+    this.name = 'StorageQuotaError'
+  }
+}
+
+function isQuotaError(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  return (
+    e.name === 'QuotaExceededError' ||
+    e.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    e.message.includes('quota')
+  )
+}
+
 export function setItem<T>(key: string, value: T): void {
   if (typeof window === 'undefined') return
-  localStorage.setItem(key, JSON.stringify(value))
+  const json = JSON.stringify(value)
+  try {
+    localStorage.setItem(key, json)
+  } catch (e) {
+    if (!isQuotaError(e)) throw e
+    // Quota exceeded: try shedding old entries from history-style array values
+    if (Array.isArray(value) && value.length > 1) {
+      let trimmed = value.slice(0, Math.max(1, Math.floor(value.length / 2)))
+      while (trimmed.length > 0) {
+        try {
+          localStorage.setItem(key, JSON.stringify(trimmed))
+          return
+        } catch (retryErr) {
+          if (!isQuotaError(retryErr)) throw retryErr
+          trimmed = trimmed.slice(0, Math.floor(trimmed.length / 2))
+        }
+      }
+    }
+    throw new StorageQuotaError()
+  }
 }
 
 export function removeItem(key: string): void {
