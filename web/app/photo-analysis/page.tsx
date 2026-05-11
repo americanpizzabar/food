@@ -338,7 +338,7 @@ export default function PhotoAnalysisPage() {
           </Section>
 
           {/* ── Cooking techniques ── */}
-          {recipe.cookingTechniques && recipe.cookingTechniques.length > 0 && (
+          {Array.isArray(recipe.cookingTechniques) && recipe.cookingTechniques.length > 0 && (
             <Section title="プロの調理技法" icon={<Flame size={17} />}>
               <div className="space-y-3">
                 {recipe.cookingTechniques.map((t: CookingTechnique, i: number) => (
@@ -356,7 +356,7 @@ export default function PhotoAnalysisPage() {
           )}
 
           {/* ── Professional tips ── */}
-          {recipe.professionalTips && recipe.professionalTips.length > 0 && (
+          {Array.isArray(recipe.professionalTips) && recipe.professionalTips.length > 0 && (
             <Section title="シェフの秘訣" icon={<Star size={17} />}>
               <div className="space-y-2">
                 {recipe.professionalTips.map((tip: string, i: number) => (
@@ -381,7 +381,7 @@ export default function PhotoAnalysisPage() {
           )}
 
           {/* ── Drink pairings ── */}
-          {recipe.drinkPairings && recipe.drinkPairings.length > 0 && (
+          {Array.isArray(recipe.drinkPairings) && recipe.drinkPairings.length > 0 && (
             <Section title="ドリンクペアリング" icon={<Wine size={17} />}>
               <div className="space-y-2">
                 {recipe.drinkPairings.map((d: string, i: number) => (
@@ -392,7 +392,7 @@ export default function PhotoAnalysisPage() {
           )}
 
           {/* ── Health benefits ── */}
-          {recipe.healthBenefits && recipe.healthBenefits.length > 0 && (
+          {Array.isArray(recipe.healthBenefits) && recipe.healthBenefits.length > 0 && (
             <Section title="健康・栄養メリット" icon={<Leaf size={17} />}>
               <div className="space-y-2">
                 {recipe.healthBenefits.map((b: string, i: number) => (
@@ -417,7 +417,7 @@ export default function PhotoAnalysisPage() {
           )}
 
           {/* ── Remake ideas ── */}
-          {recipe.remakeIdeas && recipe.remakeIdeas.length > 0 && (
+          {Array.isArray(recipe.remakeIdeas) && recipe.remakeIdeas.length > 0 && (
             <Section title="リメイクアイデア" icon={<RefreshCw size={17} />}>
               <div className="space-y-2">
                 {recipe.remakeIdeas.map((idea: string, i: number) => (
@@ -428,7 +428,7 @@ export default function PhotoAnalysisPage() {
           )}
 
           {/* ── Variations ── */}
-          {recipe.variations && recipe.variations.length > 0 && (
+          {Array.isArray(recipe.variations) && recipe.variations.length > 0 && (
             <Section title="アレンジ・バリエーション" icon={<Sparkles size={17} />}>
               <div className="space-y-2">
                 {recipe.variations.map((v: string, i: number) => (

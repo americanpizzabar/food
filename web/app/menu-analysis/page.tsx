@@ -5,7 +5,7 @@ import ImageUpload from '@/components/ImageUpload'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useApiKey } from '@/hooks/useApiKey'
 import { KEYS, generateId } from '@/lib/storage'
-import { MenuAnalysisResult, DishCookingGuide, MenuDish } from '@/lib/types'
+import { MenuAnalysisResult, DishCookingGuide, MenuDish, DetailedStep } from '@/lib/types'
 import {
   ScanSearch, ChefHat, Trash2, ChevronDown, ChevronUp,
   Star, AlertTriangle, Wine, Lightbulb, Utensils, Clock, Thermometer,
@@ -73,12 +73,24 @@ export default function MenuAnalysisPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
+      const raw = data.guide || {}
       const newGuide: DishCookingGuide = {
-        ...data.guide,
+        ...raw,
         id: generateId(),
         menuAnalysisId: '',
         dishName,
         analysisDate: new Date().toISOString(),
+        ingredients: Array.isArray(raw.ingredients) ? raw.ingredients : [],
+        techniques: Array.isArray(raw.techniques) ? raw.techniques : [],
+        steps: (Array.isArray(raw.steps) ? raw.steps : []).map((s: DetailedStep) => ({
+          ...s,
+          tips: Array.isArray(s.tips) ? s.tips : [],
+        })),
+        professionalTips: Array.isArray(raw.professionalTips) ? raw.professionalTips : [],
+        platingGuide: typeof raw.platingGuide === 'string' ? raw.platingGuide : '',
+        variations: Array.isArray(raw.variations) ? raw.variations : [],
+        drinkPairings: Array.isArray(raw.drinkPairings) ? raw.drinkPairings : [],
+        commonMistakes: Array.isArray(raw.commonMistakes) ? raw.commonMistakes : [],
       }
       setGuide(newGuide)
       updateGuides(prev => [newGuide, ...prev].slice(0, 50))
@@ -381,7 +393,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       </CollapsibleSection>
 
       {/* Techniques */}
-      {guide.techniques?.length > 0 && (
+      {Array.isArray(guide.techniques) && guide.techniques.length > 0 && (
         <CollapsibleSection
           title="プロの調理技法"
           icon={<Star size={18} />}
@@ -445,7 +457,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
                       温度: {step.temperature}
                     </div>
                   )}
-                  {step.tips?.length > 0 && (
+                  {Array.isArray(step.tips) && step.tips.length > 0 && (
                     <div className="rounded-lg p-3"
                       style={{ background: 'rgba(16,185,129,.08)', border: '1px solid rgba(16,185,129,.15)' }}>
                       <p className="text-xs font-semibold text-emerald-400 mb-1">💡 プロのコツ</p>
@@ -469,7 +481,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       </CollapsibleSection>
 
       {/* Professional tips */}
-      {guide.professionalTips?.length > 0 && (
+      {Array.isArray(guide.professionalTips) && guide.professionalTips.length > 0 && (
         <CollapsibleSection
           title="シェフの秘訣"
           icon={<Lightbulb size={18} />}
@@ -503,7 +515,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       )}
 
       {/* Drinks */}
-      {guide.drinkPairings?.length > 0 && (
+      {Array.isArray(guide.drinkPairings) && guide.drinkPairings.length > 0 && (
         <CollapsibleSection
           title="ドリンクペアリング"
           icon={<Wine size={18} />}
@@ -520,7 +532,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       )}
 
       {/* Mistakes */}
-      {guide.commonMistakes?.length > 0 && (
+      {Array.isArray(guide.commonMistakes) && guide.commonMistakes.length > 0 && (
         <CollapsibleSection
           title="よくある失敗と対処法"
           icon={<AlertTriangle size={18} />}
@@ -541,7 +553,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
       )}
 
       {/* Variations */}
-      {guide.variations?.length > 0 && (
+      {Array.isArray(guide.variations) && guide.variations.length > 0 && (
         <CollapsibleSection
           title="アレンジ・バリエーション"
           icon={<Sparkles size={18} />}
