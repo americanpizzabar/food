@@ -12,6 +12,28 @@ import {
   Loader2, History, X, Sparkles,
 } from 'lucide-react'
 
+function normalizeGuide(input: unknown): DishCookingGuide {
+  const g = (input ?? {}) as Record<string, unknown>
+  return {
+    id: typeof g.id === 'string' ? g.id : generateId(),
+    menuAnalysisId: typeof g.menuAnalysisId === 'string' ? g.menuAnalysisId : '',
+    dishName: typeof g.dishName === 'string' ? g.dishName : '',
+    overview: typeof g.overview === 'string' ? g.overview : '',
+    platingGuide: typeof g.platingGuide === 'string' ? g.platingGuide : '',
+    analysisDate: typeof g.analysisDate === 'string' ? g.analysisDate : new Date().toISOString(),
+    ingredients: Array.isArray(g.ingredients) ? g.ingredients : [],
+    techniques: Array.isArray(g.techniques) ? g.techniques : [],
+    steps: (Array.isArray(g.steps) ? g.steps : []).map((s: DetailedStep) => ({
+      ...s,
+      tips: Array.isArray(s.tips) ? s.tips : [],
+    })),
+    professionalTips: Array.isArray(g.professionalTips) ? g.professionalTips : [],
+    variations: Array.isArray(g.variations) ? g.variations : [],
+    drinkPairings: Array.isArray(g.drinkPairings) ? g.drinkPairings : [],
+    commonMistakes: Array.isArray(g.commonMistakes) ? g.commonMistakes : [],
+  }
+}
+
 export default function MenuAnalysisPage() {
   const apiKey = useApiKey()
   const [image, setImage] = useState<string>()
@@ -73,25 +95,13 @@ export default function MenuAnalysisPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
-      const raw = data.guide || {}
-      const newGuide: DishCookingGuide = {
-        ...raw,
+      const newGuide = normalizeGuide({
+        ...(data.guide || {}),
         id: generateId(),
         menuAnalysisId: '',
         dishName,
         analysisDate: new Date().toISOString(),
-        ingredients: Array.isArray(raw.ingredients) ? raw.ingredients : [],
-        techniques: Array.isArray(raw.techniques) ? raw.techniques : [],
-        steps: (Array.isArray(raw.steps) ? raw.steps : []).map((s: DetailedStep) => ({
-          ...s,
-          tips: Array.isArray(s.tips) ? s.tips : [],
-        })),
-        professionalTips: Array.isArray(raw.professionalTips) ? raw.professionalTips : [],
-        platingGuide: typeof raw.platingGuide === 'string' ? raw.platingGuide : '',
-        variations: Array.isArray(raw.variations) ? raw.variations : [],
-        drinkPairings: Array.isArray(raw.drinkPairings) ? raw.drinkPairings : [],
-        commonMistakes: Array.isArray(raw.commonMistakes) ? raw.commonMistakes : [],
-      }
+      })
       setGuide(newGuide)
       updateGuides(prev => [newGuide, ...prev].slice(0, 50))
     } catch (e: unknown) {
@@ -149,7 +159,7 @@ export default function MenuAnalysisPage() {
                     style={{ background: 'rgba(168,85,247,.08)', border: '1px solid rgba(168,85,247,.15)' }}>
                     <button
                       className="flex-1 text-left"
-                      onClick={() => { setGuide(g); setShowHistory(false) }}
+                      onClick={() => { setGuide(normalizeGuide(g)); setShowHistory(false) }}
                     >
                       <p className="font-medium text-[#e0e0e0] text-sm">{g.dishName}</p>
                       <p className="text-xs text-[#666]">
@@ -362,7 +372,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         onToggle={() => toggleSection('ingredients')}
       >
         <div className="space-y-3">
-          {guide.ingredients?.map((ing, i) => (
+          {Array.isArray(guide.ingredients) && guide.ingredients.map((ing, i) => (
             <div key={i} className="p-3 rounded-xl"
               style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.04)' }}>
               <div className="flex items-start justify-between gap-2">
@@ -423,7 +433,7 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         onToggle={() => toggleSection('steps')}
       >
         <div className="space-y-3">
-          {guide.steps?.map((step, i) => (
+          {Array.isArray(guide.steps) && guide.steps.map((step, i) => (
             <div key={i} className="rounded-xl overflow-hidden"
               style={{ border: '1px solid rgba(255,255,255,.06)' }}>
               <button

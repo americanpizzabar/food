@@ -73,7 +73,22 @@ export default function PhotoAnalysisPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setRecipe({ ...data.recipe, imageDataUrl: image, id: generateId(), createdAt: new Date().toISOString() })
+      const r = data.recipe || {}
+      setRecipe({
+        ...r,
+        imageDataUrl: image,
+        id: generateId(),
+        createdAt: new Date().toISOString(),
+        ingredients: Array.isArray(r.ingredients) ? r.ingredients : [],
+        steps: Array.isArray(r.steps) ? r.steps : [],
+        tags: Array.isArray(r.tags) ? r.tags : [],
+        cookingTechniques: Array.isArray(r.cookingTechniques) ? r.cookingTechniques : [],
+        professionalTips: Array.isArray(r.professionalTips) ? r.professionalTips : [],
+        drinkPairings: Array.isArray(r.drinkPairings) ? r.drinkPairings : [],
+        healthBenefits: Array.isArray(r.healthBenefits) ? r.healthBenefits : [],
+        remakeIdeas: Array.isArray(r.remakeIdeas) ? r.remakeIdeas : [],
+        variations: Array.isArray(r.variations) ? r.variations : [],
+      })
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : '解析に失敗しました')
     } finally {
@@ -219,7 +234,7 @@ export default function PhotoAnalysisPage() {
                     <DollarSign size={11} />コスト: {recipe.costEstimate}
                   </Pill>
                 )}
-                {recipe.tags?.map(t => (
+                {Array.isArray(recipe.tags) && recipe.tags.map(t => (
                   <Pill key={t} color="#9ca3af" bg="rgba(255,255,255,.06)">{t}</Pill>
                 ))}
               </div>
@@ -286,7 +301,7 @@ export default function PhotoAnalysisPage() {
               </button>
             )}
             <div className="space-y-2">
-              {recipe.ingredients?.map((ing: Ingredient, i: number) => editing ? (
+              {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ing: Ingredient, i: number) => editing ? (
                 <div key={i} className="flex gap-2">
                   <input className="input flex-1" placeholder="食材名" value={ing.name} onChange={e => updateIngredient(i, 'name', e.target.value)} />
                   <input className="input w-20" placeholder="量" value={ing.amount} onChange={e => updateIngredient(i, 'amount', e.target.value)} />
@@ -318,7 +333,7 @@ export default function PhotoAnalysisPage() {
               </button>
             )}
             <div className="space-y-3">
-              {recipe.steps?.map((step: string, i: number) => (
+              {Array.isArray(recipe.steps) && recipe.steps.map((step: string, i: number) => (
                 <div key={i} className="flex gap-3">
                   <span className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                     style={{ background: 'rgba(232,184,75,.15)', color: '#e8b84b' }}>
