@@ -1,13 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { importRecipeFromUrl, extractJson } from '@/lib/gemini'
 
+function validatePublicUrl(raw: string): URL {
+  let parsed: URL
+  try {
+    parsed = new URL(raw)
+  } catch {
+    throw new Error('無効なURLです')
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error('HTTPまたはHTTPSのURLのみ対応しています')
+  }
+  const h = parsed.hostname
+  if (
+    h === 'localhost' ||
+    h === '127.0.0.1' ||
+    h === '::1' ||
+    /^10\./.test(h) ||
+    /^192\.168\./.test(h) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(h) ||
+    /^169\.254\./.test(h) ||
+    h.endsWith('.internal') ||
+    h.endsWith('.local')
+  ) {
+    throw new Error('このURLにはアクセスできません')
+  }
+  return parsed
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { url, apiKey } = await req.json()
     if (!url) return NextResponse.json({ error: 'URLが必要です' }, { status: 400 })
 
+    const parsedUrl = validatePublicUrl(url)
+
     // Fetch page content server-side
-    const res = await fetch(url, {
+    const res = await fetch(parsedUrl.toString(), {
       headers: { 'User-Agent': 'Mozilla/5.0 FoodAI/1.0' },
       signal: AbortSignal.timeout(10000)
     })
