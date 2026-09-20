@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import ImageUpload from '@/components/ImageUpload'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useApiKey } from '@/hooks/useApiKey'
@@ -596,8 +596,21 @@ function CollapsibleSection({
   onToggle: () => void
   children: React.ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const prevExpanded = useRef(expanded)
+
+  useEffect(() => {
+    if (expanded && !prevExpanded.current && ref.current) {
+      const el = ref.current
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+    prevExpanded.current = expanded
+  }, [expanded])
+
   return (
-    <div className="card">
+    <div ref={ref} className="card" style={{ scrollMarginTop: '12px' }}>
       <button
         className="w-full flex items-center justify-between gap-3 text-left"
         onClick={onToggle}
