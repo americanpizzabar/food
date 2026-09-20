@@ -437,21 +437,23 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
             <div key={i} className="rounded-xl overflow-hidden"
               style={{ border: '1px solid rgba(255,255,255,.06)' }}>
               <button
-                className="w-full flex items-center gap-3 p-3 text-left transition-colors hover:bg-[rgba(255,255,255,.03)]"
+                className="w-full flex items-start gap-3 p-3 text-left transition-colors hover:bg-[rgba(255,255,255,.03)]"
                 onClick={() => setExpandedStep(expandedStep === i ? null : i)}
               >
                 <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                   style={{ background: 'rgba(168,85,247,.18)', color: '#c084fc' }}>
                   {step.stepNumber}
                 </span>
-                <span className="font-medium text-[#e0e0e0] flex-1">{step.title}</span>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-[#e0e0e0] break-words">{step.title}</p>
                   {step.duration && (
-                    <span className="badge text-xs"
+                    <span className="inline-flex items-center badge text-xs mt-1.5"
                       style={{ background: 'rgba(59,130,246,.12)', color: '#60a5fa' }}>
                       <Clock size={10} className="mr-1" />{step.duration}
                     </span>
                   )}
+                </div>
+                <div className="flex-shrink-0 pt-1">
                   {expandedStep === i
                     ? <ChevronUp size={16} className="text-[#888]" />
                     : <ChevronDown size={16} className="text-[#888]" />}
