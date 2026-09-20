@@ -2,10 +2,12 @@
 
 import { useState, useCallback } from 'react'
 import ImageUpload from '@/components/ImageUpload'
+import ShareButton from '@/components/ShareButton'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useApiKey } from '@/hooks/useApiKey'
 import { KEYS, generateId } from '@/lib/storage'
 import { Recipe, Ingredient, CookingTechnique } from '@/lib/types'
+import { formatRecipe } from '@/lib/share-format'
 import {
   Camera, Save, ShoppingCart, Edit3, Check, Trash2, Plus, Loader2,
   AlertTriangle, ChefHat, Utensils, Wine, Leaf, Package, Lightbulb,
@@ -193,6 +195,7 @@ export default function PhotoAnalysisPage() {
             <button onClick={addToShopping} disabled={addedToShopping} className="btn-secondary text-sm">
               <ShoppingCart size={16} />{addedToShopping ? '追加済み' : '買い物リスト'}
             </button>
+            <ShareButton {...formatRecipe(recipe)} size="sm" />
             <button onClick={() => { setRecipe(null); setImage(undefined); setSaved(false); setAddedToShopping(false) }}
               className="btn-secondary text-sm">
               <Camera size={16} />別の写真

@@ -5,6 +5,8 @@ import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useApiKey } from '@/hooks/useApiKey'
 import { KEYS, generateId } from '@/lib/storage'
 import { Recipe, ShoppingItem, PantryItem } from '@/lib/types'
+import { formatRecipe } from '@/lib/share-format'
+import ShareButton from '@/components/ShareButton'
 import { Sparkles, Save, ShoppingCart, ChevronDown, ChevronUp, Loader2, AlertTriangle, Clock, Users } from 'lucide-react'
 
 const MOODS = ['😊 嬉しい', '😴 疲れた', '😰 ストレス', '⚡ 元気', '😌 リラックス', '😐 普通']
@@ -160,6 +162,7 @@ function RecipeCard({ recipe, saved, onSave, onAddToShopping }: {
         <button onClick={onAddToShopping} className="btn-primary text-sm flex-1 justify-center">
           <ShoppingCart size={16} />買い物へ
         </button>
+        <ShareButton {...formatRecipe(recipe)} size="sm" label="" />
       </div>
       <button onClick={() => setExpanded(!expanded)} className="text-sm text-orange-500 hover:text-orange-600 flex items-center gap-1">
         {expanded ? <><ChevronUp size={16} />詳細を閉じる</> : <><ChevronDown size={16} />材料・手順を見る</>}

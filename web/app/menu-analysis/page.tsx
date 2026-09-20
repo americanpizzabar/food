@@ -2,14 +2,16 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import ImageUpload from '@/components/ImageUpload'
+import ShareButton from '@/components/ShareButton'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useApiKey } from '@/hooks/useApiKey'
 import { KEYS, generateId } from '@/lib/storage'
 import { MenuAnalysisResult, DishCookingGuide, MenuDish, DetailedStep } from '@/lib/types'
+import { formatCookingGuide, formatMenuAnalysis } from '@/lib/share-format'
 import {
   ScanSearch, ChefHat, Trash2, ChevronDown, ChevronUp,
   Star, AlertTriangle, Wine, Lightbulb, Utensils, Clock, Thermometer,
-  Loader2, History, X, Sparkles,
+  Loader2, History, X, Sparkles, Pencil, Check, Plus,
 } from 'lucide-react'
 
 function normalizeGuide(input: unknown): DishCookingGuide {
@@ -39,6 +41,7 @@ export default function MenuAnalysisPage() {
   const [image, setImage] = useState<string>()
   const [scanning, setScanning] = useState(false)
   const [dishes, setDishes] = useState<MenuDish[]>([])
+  const [currentAnalysisId, setCurrentAnalysisId] = useState<string | null>(null)
   const [selectedDish, setSelectedDish] = useState<string>('')
   const [customDish, setCustomDish] = useState('')
   const [generatingGuide, setGeneratingGuide] = useState(false)
@@ -73,6 +76,7 @@ export default function MenuAnalysisPage() {
         detectedDishes: data.dishes,
         analysisDate: new Date().toISOString(),
       }
+      setCurrentAnalysisId(record.id)
       updateAnalyses(prev => [record, ...prev].slice(0, 20))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : '解析に失敗しました')
@@ -111,8 +115,47 @@ export default function MenuAnalysisPage() {
     }
   }, [apiKey, updateGuides])
 
-  const deleteAnalysis = (id: string) => updateAnalyses(prev => prev.filter(a => a.id !== id))
+  const deleteAnalysis = (id: string) => {
+    updateAnalyses(prev => prev.filter(a => a.id !== id))
+    if (currentAnalysisId === id) setCurrentAnalysisId(null)
+  }
   const deleteGuide = (id: string) => updateGuides(prev => prev.filter(g => g.id !== id))
+
+  const updateDish = (i: number, patch: Partial<MenuDish>) => {
+    const prevName = dishes[i]?.name
+    const next = dishes.map((d, idx) => idx === i ? { ...d, ...patch } : d)
+    setDishes(next)
+    if (currentAnalysisId) {
+      updateAnalyses(list => list.map(a =>
+        a.id === currentAnalysisId ? { ...a, detectedDishes: next } : a
+      ))
+    }
+    if (selectedDish && prevName === selectedDish && patch.name != null) {
+      setSelectedDish(patch.name)
+    }
+  }
+
+  const removeDish = (i: number) => {
+    const removed = dishes[i]?.name
+    const next = dishes.filter((_, idx) => idx !== i)
+    setDishes(next)
+    if (currentAnalysisId) {
+      updateAnalyses(list => list.map(a =>
+        a.id === currentAnalysisId ? { ...a, detectedDishes: next } : a
+      ))
+    }
+    if (selectedDish === removed) setSelectedDish('')
+  }
+
+  const addBlankDish = () => {
+    const next = [...dishes, { name: '', description: '', price: '', category: '' } as MenuDish]
+    setDishes(next)
+    if (currentAnalysisId) {
+      updateAnalyses(list => list.map(a =>
+        a.id === currentAnalysisId ? { ...a, detectedDishes: next } : a
+      ))
+    }
+  }
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -186,6 +229,7 @@ export default function MenuAnalysisPage() {
                       className="flex-1 text-left min-w-0"
                       onClick={() => {
                         setDishes(a.detectedDishes)
+                        setCurrentAnalysisId(a.id)
                         setSelectedDish('')
                         setGuide(null)
                         setImage(undefined)
@@ -235,42 +279,39 @@ export default function MenuAnalysisPage() {
       {/* Step 2 */}
       {dishes.length > 0 && !guide && (
         <div className="card space-y-4">
-          <h2 className="section-title">
-            STEP 2 — 料理を選択 ({dishes.length}品検出)
-          </h2>
+          <div className="flex items-start justify-between gap-2 flex-wrap">
+            <h2 className="section-title flex-1 min-w-0">
+              STEP 2 — 料理を選択 ({dishes.length}品)
+            </h2>
+            <ShareButton
+              {...formatMenuAnalysis(dishes)}
+              size="sm"
+              label="メニュー共有"
+            />
+          </div>
+          <p className="text-xs text-[#777] -mt-2">
+            誤字や不足があれば ✎ ボタンから編集できます
+          </p>
 
           <div className="space-y-2">
             {dishes.map((dish, i) => (
-              <button
+              <DishRow
                 key={i}
-                onClick={() => setSelectedDish(dish.name)}
-                className="w-full text-left p-3 rounded-xl transition-all"
-                style={selectedDish === dish.name
-                  ? { background: 'rgba(168,85,247,.12)', border: '2px solid rgba(168,85,247,.4)' }
-                  : { background: 'var(--surface-2)', border: '2px solid rgba(255,255,255,.06)' }}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-medium text-[#e0e0e0]">{dish.name}</p>
-                    {dish.description && (
-                      <p className="text-xs text-[#777] mt-0.5">{dish.description}</p>
-                    )}
-                  </div>
-                  <div className="flex-shrink-0 text-right">
-                    {dish.category && (
-                      <span className="badge"
-                        style={{ background: 'rgba(255,255,255,.06)', color: '#aaa' }}>
-                        {dish.category}
-                      </span>
-                    )}
-                    {dish.price && (
-                      <p className="text-xs text-[#666] mt-1">{dish.price}</p>
-                    )}
-                  </div>
-                </div>
-              </button>
+                dish={dish}
+                selected={selectedDish === dish.name && dish.name !== ''}
+                onSelect={() => setSelectedDish(dish.name)}
+                onUpdate={patch => updateDish(i, patch)}
+                onRemove={() => removeDish(i)}
+              />
             ))}
           </div>
+
+          <button
+            onClick={addBlankDish}
+            className="btn-secondary text-xs w-full justify-center"
+          >
+            <Plus size={14} />料理を追加
+          </button>
 
           <div className="border-t pt-4" style={{ borderColor: 'rgba(255,255,255,.06)' }}>
             <p className="text-sm text-[#888] mb-2">または料理名を直接入力</p>
@@ -356,16 +397,23 @@ function CookingGuide({ guide, onClose }: { guide: DishCookingGuide; onClose: ()
         <div className="absolute -top-12 -right-8 w-40 h-40 rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(168,85,247,.18), transparent 70%)' }} />
         <div className="relative flex items-start justify-between gap-3">
-          <div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <ChefHat size={20} className="text-purple-300" />
               <span className="text-sm font-medium text-purple-300">プロ級レシピ</span>
             </div>
-            <h2 className="text-xl font-bold text-white">{guide.dishName}</h2>
+            <h2 className="text-xl font-bold text-white break-words">{guide.dishName}</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <ShareButton
+              {...formatCookingGuide(guide)}
+              size="sm"
+              label="共有"
+            />
+            <button onClick={onClose} className="p-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
+              <X size={18} />
+            </button>
+          </div>
         </div>
         {guide.overview && (
           <p className="text-purple-100/80 text-sm mt-3 leading-relaxed relative">{guide.overview}</p>
@@ -635,6 +683,131 @@ function CollapsibleSection({
           : <ChevronDown size={18} className="text-[#888]" />}
       </button>
       {expanded && <div className="mt-4">{children}</div>}
+    </div>
+  )
+}
+
+// ---- Editable dish row for scanned menu items ----
+function DishRow({ dish, selected, onSelect, onUpdate, onRemove }: {
+  dish: MenuDish
+  selected: boolean
+  onSelect: () => void
+  onUpdate: (patch: Partial<MenuDish>) => void
+  onRemove: () => void
+}) {
+  const [editing, setEditing] = useState(dish.name === '')
+  const [draft, setDraft] = useState<MenuDish>(dish)
+
+  useEffect(() => {
+    if (!editing) setDraft(dish)
+  }, [dish, editing])
+
+  const save = () => {
+    onUpdate({
+      name: draft.name.trim(),
+      description: draft.description?.trim() ?? '',
+      price: draft.price?.trim() ?? '',
+      category: draft.category?.trim() ?? '',
+    })
+    setEditing(false)
+  }
+
+  const cancel = () => {
+    setDraft(dish)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="rounded-xl p-3 space-y-2"
+        style={{ background: 'rgba(168,85,247,.06)', border: '2px solid rgba(168,85,247,.35)' }}>
+        <input
+          className="input"
+          placeholder="料理名"
+          value={draft.name}
+          onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
+          autoFocus
+        />
+        <input
+          className="input text-sm"
+          placeholder="説明 (任意)"
+          value={draft.description ?? ''}
+          onChange={e => setDraft(d => ({ ...d, description: e.target.value }))}
+        />
+        <div className="flex gap-2">
+          <input
+            className="input text-sm flex-1"
+            placeholder="カテゴリ"
+            value={draft.category ?? ''}
+            onChange={e => setDraft(d => ({ ...d, category: e.target.value }))}
+          />
+          <input
+            className="input text-sm w-28"
+            placeholder="価格"
+            value={draft.price ?? ''}
+            onChange={e => setDraft(d => ({ ...d, price: e.target.value }))}
+          />
+        </div>
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={save}
+            disabled={!draft.name.trim()}
+            className="btn-primary text-xs flex-1 justify-center"
+          >
+            <Check size={14} />保存
+          </button>
+          <button onClick={cancel} className="btn-secondary text-xs flex-1 justify-center">
+            <X size={14} />キャンセル
+          </button>
+          <button onClick={onRemove} className="btn-danger text-xs">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className="rounded-xl transition-all overflow-hidden"
+      style={selected
+        ? { background: 'rgba(168,85,247,.12)', border: '2px solid rgba(168,85,247,.4)' }
+        : { background: 'var(--surface-2)', border: '2px solid rgba(255,255,255,.06)' }}
+    >
+      <div className="flex items-stretch">
+        <button
+          onClick={onSelect}
+          className="flex-1 text-left p-3 min-w-0"
+        >
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-medium text-[#e0e0e0] break-words">{dish.name}</p>
+              {dish.description && (
+                <p className="text-xs text-[#777] mt-0.5 break-words">{dish.description}</p>
+              )}
+            </div>
+            <div className="flex-shrink-0 text-right">
+              {dish.category && (
+                <span className="badge"
+                  style={{ background: 'rgba(255,255,255,.06)', color: '#aaa' }}>
+                  {dish.category}
+                </span>
+              )}
+              {dish.price && (
+                <p className="text-xs text-[#666] mt-1">{dish.price}</p>
+              )}
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={() => setEditing(true)}
+          className="px-3 flex items-center text-[#888] hover:text-purple-300 hover:bg-purple-500/10 transition-colors"
+          aria-label="編集"
+          title="この料理を編集"
+        >
+          <Pencil size={15} />
+        </button>
+      </div>
     </div>
   )
 }
