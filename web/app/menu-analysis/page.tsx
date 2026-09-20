@@ -182,7 +182,16 @@ export default function MenuAnalysisPage() {
                 {analyses.map(a => (
                   <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl"
                     style={{ background: 'var(--surface-2)', border: '1px solid rgba(255,255,255,.05)' }}>
-                    <div className="flex-1">
+                    <button
+                      className="flex-1 text-left min-w-0"
+                      onClick={() => {
+                        setDishes(a.detectedDishes)
+                        setSelectedDish('')
+                        setGuide(null)
+                        setImage(undefined)
+                        setShowHistory(false)
+                      }}
+                    >
                       <p className="text-xs text-[#777]">
                         {new Date(a.analysisDate).toLocaleDateString('ja-JP')} —
                         {a.detectedDishes.length}品検出
@@ -191,8 +200,8 @@ export default function MenuAnalysisPage() {
                         {a.detectedDishes.slice(0, 3).map(d => d.name).join('、')}
                         {a.detectedDishes.length > 3 && '…'}
                       </p>
-                    </div>
-                    <button onClick={() => deleteAnalysis(a.id)} className="btn-danger">
+                    </button>
+                    <button onClick={() => deleteAnalysis(a.id)} className="btn-danger flex-shrink-0">
                       <Trash2 size={14} />
                     </button>
                   </div>

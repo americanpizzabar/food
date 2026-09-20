@@ -2,6 +2,7 @@ import { GoogleGenerativeAI, Part } from '@google/generative-ai'
 
 const PRIMARY_MODEL = 'gemini-2.5-flash'
 const FALLBACK_MODEL = 'gemini-2.5-flash-lite'
+const HIGH_ACCURACY_MODEL = 'gemini-2.5-pro'
 
 function getClient(apiKey?: string) {
   const key = apiKey || process.env.GEMINI_API_KEY || ''
@@ -27,8 +28,14 @@ function isOverloadError(e: unknown): boolean {
   return m.includes('503') || m.includes('Service Unavailable') || m.includes('overloaded') || m.includes('high demand')
 }
 
+function isModelUnavailable(e: unknown): boolean {
+  if (!(e instanceof Error)) return false
+  const m = e.message
+  return m.includes('404') || m.includes('not found') || m.includes('NOT_FOUND') || m.includes('is not supported')
+}
+
 function isRetryableError(e: unknown): boolean {
-  return isQuotaError(e) || isOverloadError(e)
+  return isQuotaError(e) || isOverloadError(e) || isModelUnavailable(e)
 }
 
 function isAuthError(e: unknown): boolean {
@@ -53,13 +60,29 @@ function friendlyError(e: unknown): never {
 
 type Prompt = string | (string | Part)[]
 
-async function generateWithFallback(prompt: Prompt, apiKey?: string): Promise<string> {
+type GenOpts = {
+  models?: string[]
+  generationConfig?: {
+    temperature?: number
+    topP?: number
+    topK?: number
+    maxOutputTokens?: number
+    responseMimeType?: string
+  }
+}
+
+async function generateWithFallback(prompt: Prompt, apiKey?: string, opts?: GenOpts): Promise<string> {
   const client = getClient(apiKey)
+  const models = opts?.models ?? [PRIMARY_MODEL, FALLBACK_MODEL]
+  const generationConfig = opts?.generationConfig
   let lastError: unknown
 
-  for (const modelName of [PRIMARY_MODEL, FALLBACK_MODEL]) {
+  for (const modelName of models) {
     try {
-      const model = client.getGenerativeModel({ model: modelName })
+      const model = client.getGenerativeModel({
+        model: modelName,
+        ...(generationConfig ? { generationConfig } : {}),
+      })
       const result = await model.generateContent(prompt as never)
       return result.response.text()
     } catch (e) {
@@ -167,17 +190,44 @@ export async function suggestRecipes(params: {
 
 // ---- Menu Analysis: detect dishes from menu photo ----
 export async function analyzeMenuPhoto(imageDataUrl: string, apiKey?: string): Promise<string> {
-  const prompt = `このレストランのメニュー写真を分析し、メニューに掲載されている料理を全て抽出してください。JSON配列形式のみで回答（説明不要）:
+  const prompt = `あなたはレストランメニューを完全に読み取るプロのOCR兼メニュー解析AIです。
+画像に写っているメニュー内の料理・ドリンク・コースを、1品も漏らさず全て抽出してください。
+
+【重要な指示】
+1. 手書き・印刷・黒板・看板・タブレット表示など、あらゆる形式に対応する
+2. 日本語・英語・外国語が混在していても全て日本語で表記 (原語併記も可)
+3. 部分的に見切れている料理でも、読み取れる範囲で含める
+4. 完全に同じ料理は重複排除。似た名前でも別料理なら両方含める
+5. 価格は表示通りの形式で記載 (¥1,500・1500円・$15・税込/税抜 等)
+6. カテゴリはメニュー上の見出し (前菜・鮮魚・肉料理・ご飯物・甘味 等) を最優先。なければ料理内容から推定
+7. コース料理はコース名を1品として抽出し、可能ならコース内の個別料理も別項目として抽出
+8. ドリンク (ワイン・日本酒・焼酎・ビール・カクテル・ソフトドリンク・お茶) も必ず含める
+9. 説明文がなくても料理名だけで登録して良い
+10. 少しでも料理・飲み物と判別できるものは全て含め、判読困難でも推定を試みる
+11. 出力は必ずJSON配列 (説明文・マークダウン・コードブロック不要)
+
+JSON配列形式のみで回答:
 [
   {
-    "name": "料理名",
-    "description": "料理の簡単な説明（あれば）",
-    "price": "価格（あれば）",
-    "category": "カテゴリ（前菜・メイン・デザート等）"
+    "name": "料理名 (日本語で正確に。外国語は「原語 (日本語)」形式も可)",
+    "description": "料理の説明・使用食材・調理法 (メニューに記載がある場合のみ、なければ空文字)",
+    "price": "価格文字列 (¥1,500 の形式・税表記も含む・なければ空文字)",
+    "category": "前菜/鮮魚/肉料理/ご飯物/デザート/ドリンク/コース 等"
   }
 ]`
 
-  return generateWithFallback([imagePartFromDataUrl(imageDataUrl), prompt], apiKey)
+  return generateWithFallback(
+    [imagePartFromDataUrl(imageDataUrl), prompt],
+    apiKey,
+    {
+      models: [HIGH_ACCURACY_MODEL, PRIMARY_MODEL, FALLBACK_MODEL],
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.95,
+        responseMimeType: 'application/json',
+      },
+    }
+  )
 }
 
 // ---- Dish Cooking Guide: professional-level cooking instructions ----
