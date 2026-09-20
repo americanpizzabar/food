@@ -3,6 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "public": true
+  "installCommand": "npm install"
 }
